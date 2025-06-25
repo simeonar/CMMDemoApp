@@ -15,6 +15,8 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.GLControl;
 using System.Windows.Forms;
+using System.Collections.Generic;
+using CMMDemoApp.Models;
 
 namespace CMMDemoApp;
 
@@ -25,6 +27,13 @@ public partial class MainWindow : Window
 {
     private GLControl? glControl;
     private bool showDemoCube = false;
+
+    private List<MeasurementResult> demoPoints = new List<MeasurementResult>
+    {
+        new MeasurementResult { Name = "Punkt 1", X = -10, Y = 0, Z = 0, Nominal = 25.0, Actual = 25.0 },
+        new MeasurementResult { Name = "Punkt 2", X = 0, Y = 0, Z = 0, Nominal = 25.0, Actual = 24.8 },
+        new MeasurementResult { Name = "Punkt 3", X = 10, Y = 0, Z = 0, Nominal = 25.0, Actual = 25.2 }
+    };
 
     public MainWindow()
     {
@@ -94,6 +103,18 @@ public partial class MainWindow : Window
             GL.Vertex3(-1.0, -1.0,  1.0);
             GL.End();
         }
+        // Рисуем точки
+        GL.PointSize(10f);
+        GL.Begin(PrimitiveType.Points);
+        foreach (var pt in demoPoints)
+        {
+            if (Math.Abs(pt.Deviation) < 0.15)
+                GL.Color3(0.2, 0.8, 0.2); // зелёный
+            else
+                GL.Color3(0.9, 0.2, 0.2); // красный
+            GL.Vertex3(pt.X / 30.0, pt.Y / 30.0, pt.Z / 30.0); // нормализация для куба
+        }
+        GL.End();
         glControl?.SwapBuffers();
     }
 }
