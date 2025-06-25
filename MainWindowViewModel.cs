@@ -61,7 +61,7 @@ public partial class MainWindowViewModel : ObservableObject
         mesh.Positions.Add(new Point3D(30, 15, 7.5));    // 6
         mesh.Positions.Add(new Point3D(-30, 15, 7.5));   // 7
 
-        // Normale für besseres Licht
+        // Normalen für besseres Licht
         var frontNormal = new Vector3D(0, 0, -1);
         var backNormal = new Vector3D(0, 0, 1);
         var leftNormal = new Vector3D(-1, 0, 0);
@@ -70,41 +70,41 @@ public partial class MainWindowViewModel : ObservableObject
         var bottomNormal = new Vector3D(0, -1, 0);
 
         // Erweiterte Vertices für jede Seite (für korrekte Normalen)
-        // Front face
+        // Vorderseite
         mesh.Positions.Add(new Point3D(-30, -15, -7.5)); mesh.Normals.Add(frontNormal); // 8
         mesh.Positions.Add(new Point3D(30, -15, -7.5));  mesh.Normals.Add(frontNormal); // 9
         mesh.Positions.Add(new Point3D(30, 15, -7.5));   mesh.Normals.Add(frontNormal); // 10
         mesh.Positions.Add(new Point3D(-30, 15, -7.5));  mesh.Normals.Add(frontNormal); // 11
 
-        // Back face
+        // Rückseite
         mesh.Positions.Add(new Point3D(30, -15, 7.5));   mesh.Normals.Add(backNormal); // 12
         mesh.Positions.Add(new Point3D(-30, -15, 7.5));  mesh.Normals.Add(backNormal); // 13
         mesh.Positions.Add(new Point3D(-30, 15, 7.5));   mesh.Normals.Add(backNormal); // 14
         mesh.Positions.Add(new Point3D(30, 15, 7.5));    mesh.Normals.Add(backNormal); // 15
 
-        // Triangles mit neuen Indices
-        // Front face
+        // Dreiecke mit neuen Indizes
+        // Vorderseite
         mesh.TriangleIndices.Add(8); mesh.TriangleIndices.Add(9); mesh.TriangleIndices.Add(10);
         mesh.TriangleIndices.Add(8); mesh.TriangleIndices.Add(10); mesh.TriangleIndices.Add(11);
         
-        // Back face
+        // Rückseite
         mesh.TriangleIndices.Add(12); mesh.TriangleIndices.Add(13); mesh.TriangleIndices.Add(14);
         mesh.TriangleIndices.Add(12); mesh.TriangleIndices.Add(14); mesh.TriangleIndices.Add(15);
         
         // Verwende ursprüngliche Vertices für andere Seiten
-        // Left face
+        // Linke Seite
         mesh.TriangleIndices.Add(0); mesh.TriangleIndices.Add(3); mesh.TriangleIndices.Add(7);
         mesh.TriangleIndices.Add(0); mesh.TriangleIndices.Add(7); mesh.TriangleIndices.Add(4);
         
-        // Right face
+        // Rechte Seite
         mesh.TriangleIndices.Add(1); mesh.TriangleIndices.Add(5); mesh.TriangleIndices.Add(6);
         mesh.TriangleIndices.Add(1); mesh.TriangleIndices.Add(6); mesh.TriangleIndices.Add(2);
         
-        // Top face
+        // Oberseite
         mesh.TriangleIndices.Add(3); mesh.TriangleIndices.Add(2); mesh.TriangleIndices.Add(6);
         mesh.TriangleIndices.Add(3); mesh.TriangleIndices.Add(6); mesh.TriangleIndices.Add(7);
         
-        // Bottom face
+        // Unterseite
         mesh.TriangleIndices.Add(0); mesh.TriangleIndices.Add(4); mesh.TriangleIndices.Add(5);
         mesh.TriangleIndices.Add(0); mesh.TriangleIndices.Add(5); mesh.TriangleIndices.Add(1);
 
@@ -119,20 +119,20 @@ public partial class MainWindowViewModel : ObservableObject
         
         foreach (var point in MeasurementResults)
         {
-            // Находим точку на поверхности куба для размещения сферы
+            // Finde Punkt auf der Würfeloberfläche für die Platzierung der Kugel
             var surfacePoint = GetSurfacePoint(new Point3D(point.X, point.Y, point.Z));
             
-            // Создаем очень маленькую сферу прямо на поверхности
-            var sphereMesh = CreateSphere(surfacePoint, 0.4); // Совсем маленькие точки - радиус 0.4
+            // Erstelle sehr kleine Kugel direkt auf der Oberfläche
+            var sphereMesh = CreateSphere(surfacePoint, 0.4); // Ganz kleine Punkte - Radius 0.4
             var material = Math.Abs(point.Deviation) < 0.15 
-                ? new DiffuseMaterial(Brushes.Lime) // Яркий зеленый
-                : new DiffuseMaterial(Brushes.Red);  // Красный
+                ? new DiffuseMaterial(Brushes.Lime) // Helles Grün
+                : new DiffuseMaterial(Brushes.Red);  // Rot
             
-            // Добавляем блеск для лучшей видимости
+            // Füge Glanz für bessere Sichtbarkeit hinzu
             var materialGroup = new MaterialGroup();
             materialGroup.Children.Add(material);
             materialGroup.Children.Add(new SpecularMaterial(Brushes.White, 100));
-            materialGroup.Children.Add(new EmissiveMaterial(material.Brush)); // Добавляем свечение для лучшей видимости
+            materialGroup.Children.Add(new EmissiveMaterial(material.Brush)); // Füge Leuchten für bessere Sichtbarkeit hinzu
             
             pointsGroup.Children.Add(new GeometryModel3D(sphereMesh, materialGroup));
         }
@@ -142,37 +142,37 @@ public partial class MainWindowViewModel : ObservableObject
     
     private Point3D GetSurfacePoint(Point3D referencePoint)
     {
-        // Размеры куба: 60x30x15 (от -30 до +30 по X, от -15 до +15 по Y, от -7.5 до +7.5 по Z)
+        // Würfelabmessungen: 60x30x15 (von -30 bis +30 auf X, von -15 bis +15 auf Y, von -7.5 bis +7.5 auf Z)
         
-        // Вычисляем расстояния до каждой грани
+        // Berechne Abstände zu jeder Fläche
         double[] distances = new double[6];
         Point3D[] candidatePoints = new Point3D[6];
         
-        // Левая грань (X = -30)
+        // Linke Fläche (X = -30)
         distances[0] = Math.Abs(referencePoint.X + 30);
         candidatePoints[0] = new Point3D(-30, Math.Max(-15, Math.Min(15, referencePoint.Y)), Math.Max(-7.5, Math.Min(7.5, referencePoint.Z)));
         
-        // Правая грань (X = 30)
+        // Rechte Fläche (X = 30)
         distances[1] = Math.Abs(referencePoint.X - 30);
         candidatePoints[1] = new Point3D(30, Math.Max(-15, Math.Min(15, referencePoint.Y)), Math.Max(-7.5, Math.Min(7.5, referencePoint.Z)));
         
-        // Нижняя грань (Y = -15)
+        // Untere Fläche (Y = -15)
         distances[2] = Math.Abs(referencePoint.Y + 15);
         candidatePoints[2] = new Point3D(Math.Max(-30, Math.Min(30, referencePoint.X)), -15, Math.Max(-7.5, Math.Min(7.5, referencePoint.Z)));
         
-        // Верхняя грань (Y = 15)
+        // Obere Fläche (Y = 15)
         distances[3] = Math.Abs(referencePoint.Y - 15);
         candidatePoints[3] = new Point3D(Math.Max(-30, Math.Min(30, referencePoint.X)), 15, Math.Max(-7.5, Math.Min(7.5, referencePoint.Z)));
         
-        // Передняя грань (Z = -7.5)
+        // Vordere Fläche (Z = -7.5)
         distances[4] = Math.Abs(referencePoint.Z + 7.5);
         candidatePoints[4] = new Point3D(Math.Max(-30, Math.Min(30, referencePoint.X)), Math.Max(-15, Math.Min(15, referencePoint.Y)), -7.5);
         
-        // Задняя грань (Z = 7.5)
+        // Hintere Fläche (Z = 7.5)
         distances[5] = Math.Abs(referencePoint.Z - 7.5);
         candidatePoints[5] = new Point3D(Math.Max(-30, Math.Min(30, referencePoint.X)), Math.Max(-15, Math.Min(15, referencePoint.Y)), 7.5);
         
-        // Находим грань с минимальным расстоянием
+        // Finde Fläche mit minimaler Entfernung
         int minIndex = 0;
         for (int i = 1; i < 6; i++)
         {
@@ -188,7 +188,7 @@ public partial class MainWindowViewModel : ObservableObject
     private MeshGeometry3D CreateSphere(Point3D center, double radius)
     {
         var mesh = new MeshGeometry3D();
-        int segments = 6; // Уменьшаем сегменты для маленьких сфер
+        int segments = 6; // Reduziere Segmente für kleine Kugeln
         
         for (int i = 0; i <= segments; i++)
         {
@@ -224,20 +224,20 @@ public partial class MainWindowViewModel : ObservableObject
 
     private void AddSampleData()
     {
-        // Точки измерения, которые будут проецироваться на поверхности куба (60x30x15)
-        // Куб: от -30 до +30 по X, от -15 до +15 по Y, от -7.5 до +7.5 по Z
+        // Messpunkte, die auf die Würfeloberflächen projiziert werden (60x30x15)
+        // Würfel: von -30 bis +30 auf X, von -15 bis +15 auf Y, von -7.5 bis +7.5 auf Z
         
-        // Точки для верхней поверхности
+        // Punkte für obere Oberfläche
         MeasurementResults.Add(new MeasurementResult { Name = "Punkt 1", X = -20, Y = 20, Z = 0, Nominal = 25.0, Actual = 25.0 });
         MeasurementResults.Add(new MeasurementResult { Name = "Punkt 2", X = 0, Y = 20, Z = 0, Nominal = 25.0, Actual = 24.8 });
         MeasurementResults.Add(new MeasurementResult { Name = "Punkt 3", X = 20, Y = 20, Z = 0, Nominal = 25.0, Actual = 25.2 });
         
-        // Точки для передней поверхности
+        // Punkte für vordere Oberfläche
         MeasurementResults.Add(new MeasurementResult { Name = "Punkt 4", X = -15, Y = 0, Z = -15, Nominal = 30.0, Actual = 29.9 });
         MeasurementResults.Add(new MeasurementResult { Name = "Punkt 5", X = 15, Y = 0, Z = -15, Nominal = 30.0, Actual = 30.1 });
         
-        // Точки для боковых поверхностей
-        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 6", X = 40, Y = 0, Z = 0, Nominal = 15.0, Actual = 15.3 }); // Красная точка (отклонение > 0.15)
+        // Punkte für seitliche Oberflächen
+        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 6", X = 40, Y = 0, Z = 0, Nominal = 15.0, Actual = 15.3 }); // Roter Punkt (Abweichung > 0.15)
         MeasurementResults.Add(new MeasurementResult { Name = "Punkt 7", X = -40, Y = -5, Z = 0, Nominal = 15.0, Actual = 14.9 });
     }
 

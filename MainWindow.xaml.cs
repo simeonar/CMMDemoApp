@@ -44,12 +44,12 @@ namespace CMMDemoApp
 
         private void InitializeCamera()
         {
-            // Используем именованную камеру из XAML
+            // Verwende die benannte Kamera aus XAML
             camera = SceneCamera;
             if (camera != null)
             {
-                // Устанавливаем начальные параметры камеры
-                cameraDistance = 200; // Увеличиваем расстояние
+                // Setze die anfänglichen Kameraparameter
+                cameraDistance = 200; // Vergrößere die Entfernung
                 cameraTheta = Math.PI / 4; // 45 degrees
                 cameraPhi = Math.PI / 6;   // 30 degrees
                 UpdateCameraPosition();
@@ -82,7 +82,7 @@ namespace CMMDemoApp
         {
             if (camera == null) return;
 
-            // Центр объекта (куб 60x30x15)
+            // Zentrum des Objekts (Würfel 60x30x15)
             var target = new Point3D(0, 0, 0);
             
             double x = target.X + cameraDistance * Math.Sin(cameraTheta) * Math.Cos(cameraPhi);
