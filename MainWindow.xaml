@@ -6,10 +6,10 @@
         xmlns:local="clr-namespace:CMMDemoApp"
         mc:Ignorable="d"
         Title="KMM Demo App" Height="700" Width="1200"
-        Background="{DynamicResource BackgroundBrush}">
+        Background="{DynamicResource WindowBackgroundBrush}">
     <DockPanel>
         <!-- Statusbar -->
-        <StatusBar DockPanel.Dock="Bottom" Background="{DynamicResource PanelBackgroundBrush}" Foreground="{DynamicResource TextBrush}" Height="28" Padding="10,0">
+        <StatusBar DockPanel.Dock="Bottom" Background="{DynamicResource PanelBackgroundBrush}" Foreground="{DynamicResource TextPrimaryBrush}" Height="28" Padding="10,0">
             <StatusBarItem Content="Status: Bereit"/>
             <Separator/>
             <StatusBarItem Content="Benutzer: Demo"/>
@@ -20,40 +20,40 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="220"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="5"/> <!-- Splitter column -->
                 <ColumnDefinition Width="340"/>
             </Grid.ColumnDefinitions>
             <!-- Linke Bedienleiste -->
-            <StackPanel Grid.Column="0" Margin="0,20,10,20" VerticalAlignment="Stretch" Background="{DynamicResource PanelBackgroundBrush}" 
-                        Effect="{DynamicResource DropShadowEffect}" 
-                        Panel.ZIndex="2" >
-                <Button Height="56" Margin="10 10 10 0" Command="{Binding LoadModelCommand}" ToolTip="STL-Modell laden" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <TextBlock Text="📂" FontSize="24" Margin="0,0,8,0"/>
-                        <TextBlock Text="STL Laden" FontWeight="Bold" FontSize="16"/>
-                    </StackPanel>
-                </Button>
-                <Button Height="56" Margin="10 10 10 0" Command="{Binding StartMeasurementCommand}" ToolTip="Messung starten" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <TextBlock Text="▶" FontSize="24" Margin="0,0,8,0"/>
-                        <TextBlock Text="Messen" FontWeight="Bold" FontSize="16"/>
-                    </StackPanel>
-                </Button>
-                <Button Height="56" Margin="10 10 10 0" Command="{Binding ExportReportCommand}" ToolTip="Messbericht exportieren" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <TextBlock Text="📝" FontSize="24" Margin="0,0,8,0"/>
-                        <TextBlock Text="Export" FontWeight="Bold" FontSize="16"/>
-                    </StackPanel>
-                </Button>
-                <Button Height="56" Margin="10 10 10 0" Command="{Binding ShowDemoModelCommand}" ToolTip="Demo-Modell anzeigen" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <TextBlock Text="🟧" FontSize="24" Margin="0,0,8,0"/>
-                        <TextBlock Text="Demo-Modell" FontWeight="Bold" FontSize="16"/>
-                    </StackPanel>
-                </Button>
-            </StackPanel>
+            <Border Grid.Column="0" Margin="0,20,10,20" Style="{StaticResource ModernPanel}" Panel.ZIndex="2">
+                <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
+                    <Button Height="56" Margin="10 10 10 0" Command="{Binding LoadModelCommand}" ToolTip="STL-Modell laden" Style="{StaticResource ModernButton}">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="📂" FontSize="24" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="STL Laden" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Height="56" Margin="10 10 10 0" Command="{Binding StartMeasurementCommand}" ToolTip="Messung starten" Style="{StaticResource ModernButton}">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="▶" FontSize="24" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Messen" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Height="56" Margin="10 10 10 0" Command="{Binding ExportReportCommand}" ToolTip="Messbericht exportieren" Style="{StaticResource ModernButton}">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="📝" FontSize="24" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Export" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Height="56" Margin="10 10 10 0" Command="{Binding ShowDemoModelCommand}" ToolTip="Demo-Modell anzeigen" Style="{StaticResource ModernButton}">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="🟧" FontSize="24" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Demo-Modell" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Border>
             <!-- 3D Viewport mit Mausereignissen -->
-            <Border Grid.Column="1" Margin="0,20,0,20" CornerRadius="12" Background="{DynamicResource PanelBackgroundBrush}" 
-                    Effect="{DynamicResource DropShadowEffect}" >
+            <Border Grid.Column="1" Margin="0,20,0,20" Style="{StaticResource ModernPanel}">
                 <Viewport3D x:Name="MainViewport3D" 
                            MouseDown="Viewport_MouseDown" 
                            MouseMove="Viewport_MouseMove" 
@@ -76,9 +76,9 @@
                     </ModelVisual3D>
                     
                     <!-- Demo-Modell (Würfel) mit verbessertem Material -->
-                    <ModelVisual3D>
+                    <ModelVisual3D x:Name="DemoModelContainer">
                         <ModelVisual3D.Content>
-                            <GeometryModel3D x:Name="DemoModel" Geometry="{Binding DemoModelGeometry}">
+                            <GeometryModel3D x:Name="DemoModel" Geometry="{Binding DemoModelGeometry, UpdateSourceTrigger=PropertyChanged}">
                                 <GeometryModel3D.Material>
                                     <MaterialGroup>
                                         <DiffuseMaterial>
@@ -99,30 +99,39 @@
                         </ModelVisual3D.Content>
                     </ModelVisual3D>
                     
-                    <!-- Messpunkte Container -->
-                    <ModelVisual3D x:Name="MeasurementPointsContainer"/>
+                    <!-- Messpunkte Container wird programmatisch erstellt -->
                     
                 </Viewport3D>
             </Border>
+            <!-- Vertical GridSplitter between 3D and right panel -->
+            <GridSplitter Grid.Column="2" Width="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource PanelBorderBrush}" ShowsPreview="True"/>
             <!-- Rechte Infoleiste -->
-            <StackPanel Grid.Column="2" Margin="10,20,0,20" Background="{DynamicResource PanelBackgroundBrush}" 
-                        Effect="{DynamicResource DropShadowEffect}" >
-                <TextBlock Text="📊 Gemessene Punkte" FontWeight="Bold" FontSize="18" Margin="10 10 10 5"/>
-                <DataGrid ItemsSource="{Binding MeasurementResults}" AutoGenerateColumns="False" Height="220" Margin="10" 
-                          Background="{DynamicResource PanelBackgroundBrush}" Foreground="{DynamicResource TextBrush}" 
-                          BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" 
-                          RowBackground="#FFF" AlternatingRowBackground="#F5F7FA" 
-                          ColumnHeaderHeight="32" RowHeight="28" FontSize="14">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
-                        <DataGridTextColumn Header="Sollwert" Binding="{Binding Nominal}"/>
-                        <DataGridTextColumn Header="Istwert" Binding="{Binding Actual}"/>
-                        <DataGridTextColumn Header="Abweichung" Binding="{Binding Deviation}"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-                <TextBlock Text="📌 Details" FontWeight="Bold" FontSize="16" Margin="10 10 10 5"/>
-                <TextBlock Text="{Binding SelectedPointInfo}" TextWrapping="Wrap" Margin="10 0 10 10"/>
-            </StackPanel>
+            <Border Grid.Column="3" Margin="10,20,0,20" Style="{StaticResource ModernPanel}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="5"/> <!-- Splitter row -->
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="📊 Gemessene Punkte" FontWeight="Bold" FontSize="18" Margin="10 10 10 5" Grid.Row="0"/>
+                    <DataGrid ItemsSource="{Binding MeasurementResults}" AutoGenerateColumns="False" Margin="10" 
+                              Style="{StaticResource ModernDataGrid}"
+                              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
+                            <DataGridTextColumn Header="Sollwert" Binding="{Binding Nominal}"/>
+                            <DataGridTextColumn Header="Istwert" Binding="{Binding Actual}"/>
+                            <DataGridTextColumn Header="Abweichung" Binding="{Binding Deviation}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <!-- Horizontal GridSplitter between DataGrid and Details -->
+                    <GridSplitter Grid.Row="2" Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource PanelBorderBrush}" ShowsPreview="True"/>
+                    <TextBlock Text="📌 Details" FontWeight="Bold" FontSize="16" Margin="10 10 10 5" Grid.Row="3"/>
+                    <TextBlock Text="{Binding SelectedPointInfo}" TextWrapping="Wrap" Margin="10 0 10 10" Grid.Row="4"/>
+                </Grid>
+            </Border>
         </Grid>
     </DockPanel>
 </Window>

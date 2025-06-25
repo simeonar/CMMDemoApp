@@ -4,6 +4,7 @@ using System.Windows.Media.Media3D;
 using System.Windows.Input;
 using System.Windows.Controls;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace CMMDemoApp
 {
@@ -20,6 +21,9 @@ namespace CMMDemoApp
         private double cameraTheta = Math.PI / 4; // 45 degrees
         private double cameraPhi = Math.PI / 6;   // 30 degrees
 
+        private ModelVisual3D? measurementPointsContainer;
+        private PerspectiveCamera? sceneCamera;
+
         public MainWindow()
         {
             try
@@ -27,12 +31,11 @@ namespace CMMDemoApp
                 InitializeComponent();
                 viewModel = new MainWindowViewModel();
                 DataContext = viewModel;
-                
+
+                this.Loaded += MainWindow_Loaded;
+
                 // Subscribe to property changes to update 3D content
                 viewModel.PropertyChanged += ViewModel_PropertyChanged;
-                
-                // Initialize camera
-                InitializeCamera();
             }
             catch (Exception ex)
             {
@@ -42,10 +45,52 @@ namespace CMMDemoApp
             }
         }
 
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Suche Viewport3D und initialisiere camera
+            var viewport = FindChild<Viewport3D>(this);
+            if (viewport != null)
+            {
+                sceneCamera = viewport.Camera as PerspectiveCamera;
+                camera = sceneCamera;
+                
+                Debug.WriteLine("[CMM] Viewport3D gefunden, erstelle MeasurementPointsContainer neu");
+                
+                // Statt bestehenden Container zu suchen, erstellen wir einen neuen
+                measurementPointsContainer = new ModelVisual3D();
+                viewport.Children.Add(measurementPointsContainer); // Container direkt hinzufügen
+                
+                Debug.WriteLine("[CMM] Neuer MeasurementPointsContainer erstellt und hinzugefügt");
+            }
+            
+            InitializeCamera();
+            
+            // Messpunkte anzeigen, falls vorhanden
+            UpdateMeasurementPoints();
+            
+            // Debug-Information über Container
+            Debug.WriteLine($"[CMM] MeasurementPointsContainer valid: {measurementPointsContainer != null}");
+        }
+
+        // Hilfsmethode für VisualTree-Suche
+        private T? FindChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            if (parent == null) return null;
+            for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
+                if (child is T result)
+                    return result;
+                var childOfChild = FindChild<T>(child);
+                if (childOfChild != null)
+                    return childOfChild;
+            }
+            return null;
+        }
+
         private void InitializeCamera()
         {
             // Verwende die benannte Kamera aus XAML
-            camera = SceneCamera;
             if (camera != null)
             {
                 // Setze die anfänglichen Kameraparameter
@@ -54,28 +99,6 @@ namespace CMMDemoApp
                 cameraPhi = Math.PI / 6;   // 30 degrees
                 UpdateCameraPosition();
             }
-        }
-
-        private Viewport3D? FindViewport3D()
-        {
-            return FindChild<Viewport3D>(this);
-        }
-
-        private T? FindChild<T>(DependencyObject parent) where T : DependencyObject
-        {
-            if (parent == null) return null;
-
-            for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent); i++)
-            {
-                var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
-                if (child is T result)
-                    return result;
-
-                var childOfChild = FindChild<T>(child);
-                if (childOfChild != null)
-                    return childOfChild;
-            }
-            return null;
         }
 
         private void UpdateCameraPosition()
@@ -143,19 +166,31 @@ namespace CMMDemoApp
             UpdateCameraPosition();
         }
 
-        private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void UpdateMeasurementPoints()
         {
-            if (e.PropertyName == nameof(MainWindowViewModel.MeasurementPointsModel) && viewModel?.MeasurementPointsModel != null)
+            if (viewModel?.MeasurementPointsModel != null && measurementPointsContainer != null)
             {
-                // Clear existing measurement points
-                MeasurementPointsContainer.Children.Clear();
-                
-                // Add each model from the group as a separate ModelVisual3D
+                measurementPointsContainer.Children.Clear();
+                int count = 0;
                 foreach (var model in viewModel.MeasurementPointsModel.Children)
                 {
                     var visual = new ModelVisual3D { Content = model };
-                    MeasurementPointsContainer.Children.Add(visual);
+                    measurementPointsContainer.Children.Add(visual);
+                    count++;
                 }
+                Debug.WriteLine($"[CMM] UpdateMeasurementPoints: {count} Punkte hinzugefügt.");
+            }
+            else
+            {
+                Debug.WriteLine($"[CMM] UpdateMeasurementPoints: Keine Daten oder Container ist null.");
+            }
+        }
+
+        private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(MainWindowViewModel.MeasurementPointsModel))
+            {
+                UpdateMeasurementPoints();
             }
         }
     }

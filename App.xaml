@@ -6,7 +6,8 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Themes/ModernColors.xaml" />
+                <ResourceDictionary Source="Themes/ModernDarkTheme.xaml" />
+                <!-- <ResourceDictionary Source="Themes/ModernColors.xaml" /> -->
             </ResourceDictionary.MergedDictionaries>
             <local:ViewModelLocator x:Key="Locator" />
         </ResourceDictionary>
