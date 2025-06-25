@@ -52,8 +52,7 @@ Eine moderne WPF-Anwendung zur Visualisierung und Analyse von Koordinatenmessmas
 ## Projektziele
 Diese Anwendung demonstriert fortgeschrittene Fertigkeiten in der modernen .NET-Entwicklung mit besonderem Fokus auf:
 - 3D-Programmierung ohne externe Bibliotheken
-- Hochwertige UI/UX-Gestaltung
+- UI/UX-Gestaltung
 - Effiziente Softwarearchitektur nach MVVM-Prinzipien
 - Praxisorientierte Anwendung im Bereich Messtechnik/Qualitätssicherung
 
-Das Projekt zeigt die Fähigkeit, komplexe technische Anforderungen mit moderner Software-Entwicklung zu verbinden und elegante, benutzerfreundliche Lösungen für anspruchsvolle industrielle Anwendungsfälle zu schaffen.
