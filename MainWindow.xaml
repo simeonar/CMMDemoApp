@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CMMDemoApp"
-        xmlns:helix="http://helix-toolkit.org/wpf/SharpDX"
+        xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         mc:Ignorable="d"
         Title="KMM Demo App" Height="700" Width="1200"
         Background="{DynamicResource BackgroundBrush}">
@@ -45,25 +45,19 @@
                         <TextBlock Text="Export" FontWeight="Bold" FontSize="16"/>
                     </StackPanel>
                 </Button>
+                <Button Height="56" Margin="10 10 10 0" Click="ShowDemoModel_Click" ToolTip="Demo-Modell anzeigen" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <TextBlock Text="🟧" FontSize="24" Margin="0,0,8,0"/>
+                        <TextBlock Text="Demo-Modell" FontWeight="Bold" FontSize="16"/>
+                    </StackPanel>
+                </Button>
             </StackPanel>
             <!-- 3D Viewport -->
             <Border Grid.Column="1" Margin="0,20,0,20" CornerRadius="12" Background="{DynamicResource PanelBackgroundBrush}" 
                     Effect="{DynamicResource DropShadowEffect}" >
-                <helix:Viewport3DX x:Name="Viewport" 
-                                   BackgroundColor="#F5F7FA" 
-                                   Camera="{Binding Camera}"
-                                   EffectsManager="{Binding EffectsManager}">
-                    <helix:DirectionalLight3D Direction="-1,-1,-1" Color="White"/>
-                    <helix:AmbientLight3D Color="#404040"/>
-                    <helix:LineGeometryModel3D x:Name="GridLines" Geometry="{Binding GridLinesGeometry}" Color="Gray" Thickness="1"/>
-                    <helix:MeshGeometryModel3D x:Name="LoadedModel" 
-                                               Geometry="{Binding ModelGeometry}" 
-                                               Material="{Binding ModelMaterial}"/>
-                    <helix:MeshGeometryModel3D x:Name="Probe" 
-                                               Geometry="{Binding ProbeGeometry}" 
-                                               Material="{Binding ProbeMaterial}"
-                                               Transform="{Binding ProbeTransform}"/>
-                </helix:Viewport3DX>
+                <WindowsFormsHost x:Name="OpenGLHost">
+                    <!-- GLControl будет добавлен в code-behind -->
+                </WindowsFormsHost>
             </Border>
             <!-- Rechte Infoleiste -->
             <StackPanel Grid.Column="2" Margin="10,20,0,20" Background="{DynamicResource PanelBackgroundBrush}" 
