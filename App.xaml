@@ -4,6 +4,11 @@
              xmlns:local="clr-namespace:CMMDemoApp"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <local:ViewModelLocator x:Key="Locator" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/ModernColors.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <local:ViewModelLocator x:Key="Locator" />
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
