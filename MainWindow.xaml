@@ -51,10 +51,14 @@
                     </StackPanel>
                 </Button>
             </StackPanel>
-            <!-- 3D Viewport -->
+            <!-- 3D Viewport с событиями мыши -->
             <Border Grid.Column="1" Margin="0,20,0,20" CornerRadius="12" Background="{DynamicResource PanelBackgroundBrush}" 
                     Effect="{DynamicResource DropShadowEffect}" >
-                <Viewport3D>
+                <Viewport3D x:Name="MainViewport3D" 
+                           MouseDown="Viewport_MouseDown" 
+                           MouseMove="Viewport_MouseMove" 
+                           MouseUp="Viewport_MouseUp" 
+                           MouseWheel="Viewport_MouseWheel">
                     <Viewport3D.Camera>
                         <PerspectiveCamera x:Name="SceneCamera" Position="80,60,120" LookDirection="-1,-0.5,-1" UpDirection="0,1,0" FieldOfView="45"/>
                     </Viewport3D.Camera>

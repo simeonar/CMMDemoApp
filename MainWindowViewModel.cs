@@ -119,15 +119,15 @@ public partial class MainWindowViewModel : ObservableObject
         
         foreach (var point in MeasurementResults)
         {
-            var sphereMesh = CreateSphere(new Point3D(point.X, point.Y, point.Z), 4); // Увеличиваем размер сферы
+            var sphereMesh = CreateSphere(new Point3D(point.X, point.Y, point.Z), 3); // Уменьшаем размер до разумного
             var material = Math.Abs(point.Deviation) < 0.15 
-                ? new DiffuseMaterial(Brushes.Green) 
-                : new DiffuseMaterial(Brushes.Red);
+                ? new DiffuseMaterial(Brushes.Lime) // Яркий зеленый
+                : new DiffuseMaterial(Brushes.Red);  // Красный
             
             // Добавляем блеск для лучшей видимости
             var materialGroup = new MaterialGroup();
             materialGroup.Children.Add(material);
-            materialGroup.Children.Add(new SpecularMaterial(Brushes.White, 30));
+            materialGroup.Children.Add(new SpecularMaterial(Brushes.White, 50));
             
             pointsGroup.Children.Add(new GeometryModel3D(sphereMesh, materialGroup));
         }
@@ -174,18 +174,21 @@ public partial class MainWindowViewModel : ObservableObject
 
     private void AddSampleData()
     {
-        // Точки на верхней поверхности
-        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 1", X = -20, Y = 7.5, Z = 0, Nominal = 25.0, Actual = 25.0 });
-        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 2", X = 0, Y = 7.5, Z = 0, Nominal = 25.0, Actual = 24.8 });
-        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 3", X = 20, Y = 7.5, Z = 0, Nominal = 25.0, Actual = 25.2 });
+        // Точки ВОКРУГ куба (60x30x15), а не НА нем для лучшей видимости
+        // Куб: от -30 до +30 по X, от -15 до +15 по Y, от -7.5 до +7.5 по Z
         
-        // Точки на передней поверхности
-        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 4", X = -15, Y = 0, Z = -7.5, Nominal = 30.0, Actual = 29.9 });
-        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 5", X = 15, Y = 0, Z = -7.5, Nominal = 30.0, Actual = 30.1 });
+        // Точки над кубом
+        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 1", X = -25, Y = 20, Z = 0, Nominal = 25.0, Actual = 25.0 });
+        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 2", X = 0, Y = 20, Z = 0, Nominal = 25.0, Actual = 24.8 });
+        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 3", X = 25, Y = 20, Z = 0, Nominal = 25.0, Actual = 25.2 });
         
-        // Точки на боковой поверхности
-        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 6", X = 30, Y = 0, Z = 5, Nominal = 15.0, Actual = 15.3 }); // Красная точка (отклонение > 0.15)
-        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 7", X = -30, Y = 0, Z = -5, Nominal = 15.0, Actual = 14.9 });
+        // Точки перед кубом
+        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 4", X = -20, Y = 0, Z = -20, Nominal = 30.0, Actual = 29.9 });
+        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 5", X = 20, Y = 0, Z = -20, Nominal = 30.0, Actual = 30.1 });
+        
+        // Точки сбоку от куба
+        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 6", X = 45, Y = 0, Z = 5, Nominal = 15.0, Actual = 15.3 }); // Красная точка (отклонение > 0.15)
+        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 7", X = -45, Y = 0, Z = -5, Nominal = 15.0, Actual = 14.9 });
     }
 
     public RelayCommand LoadModelCommand { get; }

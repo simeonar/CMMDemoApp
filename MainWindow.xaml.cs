@@ -33,16 +33,6 @@ namespace CMMDemoApp
                 
                 // Initialize camera
                 InitializeCamera();
-                
-                // Add mouse events for 3D rotation
-                Viewport3D? viewport = FindViewport3D();
-                if (viewport != null)
-                {
-                    viewport.MouseDown += Viewport_MouseDown;
-                    viewport.MouseMove += Viewport_MouseMove;
-                    viewport.MouseUp += Viewport_MouseUp;
-                    viewport.MouseWheel += Viewport_MouseWheel;
-                }
             }
             catch (Exception ex)
             {
