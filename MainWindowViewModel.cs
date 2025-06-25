@@ -119,7 +119,11 @@ public partial class MainWindowViewModel : ObservableObject
         
         foreach (var point in MeasurementResults)
         {
-            var sphereMesh = CreateSphere(new Point3D(point.X, point.Y, point.Z), 3); // Уменьшаем размер до разумного
+            // Находим точку на поверхности куба для размещения сферы
+            var surfacePoint = GetSurfacePoint(new Point3D(point.X, point.Y, point.Z));
+            
+            // Создаем очень маленькую сферу прямо на поверхности
+            var sphereMesh = CreateSphere(surfacePoint, 0.4); // Совсем маленькие точки - радиус 0.4
             var material = Math.Abs(point.Deviation) < 0.15 
                 ? new DiffuseMaterial(Brushes.Lime) // Яркий зеленый
                 : new DiffuseMaterial(Brushes.Red);  // Красный
@@ -127,18 +131,64 @@ public partial class MainWindowViewModel : ObservableObject
             // Добавляем блеск для лучшей видимости
             var materialGroup = new MaterialGroup();
             materialGroup.Children.Add(material);
-            materialGroup.Children.Add(new SpecularMaterial(Brushes.White, 50));
+            materialGroup.Children.Add(new SpecularMaterial(Brushes.White, 100));
+            materialGroup.Children.Add(new EmissiveMaterial(material.Brush)); // Добавляем свечение для лучшей видимости
             
             pointsGroup.Children.Add(new GeometryModel3D(sphereMesh, materialGroup));
         }
         
         MeasurementPointsModel = pointsGroup;
     }
+    
+    private Point3D GetSurfacePoint(Point3D referencePoint)
+    {
+        // Размеры куба: 60x30x15 (от -30 до +30 по X, от -15 до +15 по Y, от -7.5 до +7.5 по Z)
+        
+        // Вычисляем расстояния до каждой грани
+        double[] distances = new double[6];
+        Point3D[] candidatePoints = new Point3D[6];
+        
+        // Левая грань (X = -30)
+        distances[0] = Math.Abs(referencePoint.X + 30);
+        candidatePoints[0] = new Point3D(-30, Math.Max(-15, Math.Min(15, referencePoint.Y)), Math.Max(-7.5, Math.Min(7.5, referencePoint.Z)));
+        
+        // Правая грань (X = 30)
+        distances[1] = Math.Abs(referencePoint.X - 30);
+        candidatePoints[1] = new Point3D(30, Math.Max(-15, Math.Min(15, referencePoint.Y)), Math.Max(-7.5, Math.Min(7.5, referencePoint.Z)));
+        
+        // Нижняя грань (Y = -15)
+        distances[2] = Math.Abs(referencePoint.Y + 15);
+        candidatePoints[2] = new Point3D(Math.Max(-30, Math.Min(30, referencePoint.X)), -15, Math.Max(-7.5, Math.Min(7.5, referencePoint.Z)));
+        
+        // Верхняя грань (Y = 15)
+        distances[3] = Math.Abs(referencePoint.Y - 15);
+        candidatePoints[3] = new Point3D(Math.Max(-30, Math.Min(30, referencePoint.X)), 15, Math.Max(-7.5, Math.Min(7.5, referencePoint.Z)));
+        
+        // Передняя грань (Z = -7.5)
+        distances[4] = Math.Abs(referencePoint.Z + 7.5);
+        candidatePoints[4] = new Point3D(Math.Max(-30, Math.Min(30, referencePoint.X)), Math.Max(-15, Math.Min(15, referencePoint.Y)), -7.5);
+        
+        // Задняя грань (Z = 7.5)
+        distances[5] = Math.Abs(referencePoint.Z - 7.5);
+        candidatePoints[5] = new Point3D(Math.Max(-30, Math.Min(30, referencePoint.X)), Math.Max(-15, Math.Min(15, referencePoint.Y)), 7.5);
+        
+        // Находим грань с минимальным расстоянием
+        int minIndex = 0;
+        for (int i = 1; i < 6; i++)
+        {
+            if (distances[i] < distances[minIndex])
+            {
+                minIndex = i;
+            }
+        }
+        
+        return candidatePoints[minIndex];
+    }
 
     private MeshGeometry3D CreateSphere(Point3D center, double radius)
     {
         var mesh = new MeshGeometry3D();
-        int segments = 8;
+        int segments = 6; // Уменьшаем сегменты для маленьких сфер
         
         for (int i = 0; i <= segments; i++)
         {
@@ -174,21 +224,21 @@ public partial class MainWindowViewModel : ObservableObject
 
     private void AddSampleData()
     {
-        // Точки ВОКРУГ куба (60x30x15), а не НА нем для лучшей видимости
+        // Точки измерения, которые будут проецироваться на поверхности куба (60x30x15)
         // Куб: от -30 до +30 по X, от -15 до +15 по Y, от -7.5 до +7.5 по Z
         
-        // Точки над кубом
-        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 1", X = -25, Y = 20, Z = 0, Nominal = 25.0, Actual = 25.0 });
+        // Точки для верхней поверхности
+        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 1", X = -20, Y = 20, Z = 0, Nominal = 25.0, Actual = 25.0 });
         MeasurementResults.Add(new MeasurementResult { Name = "Punkt 2", X = 0, Y = 20, Z = 0, Nominal = 25.0, Actual = 24.8 });
-        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 3", X = 25, Y = 20, Z = 0, Nominal = 25.0, Actual = 25.2 });
+        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 3", X = 20, Y = 20, Z = 0, Nominal = 25.0, Actual = 25.2 });
         
-        // Точки перед кубом
-        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 4", X = -20, Y = 0, Z = -20, Nominal = 30.0, Actual = 29.9 });
-        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 5", X = 20, Y = 0, Z = -20, Nominal = 30.0, Actual = 30.1 });
+        // Точки для передней поверхности
+        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 4", X = -15, Y = 0, Z = -15, Nominal = 30.0, Actual = 29.9 });
+        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 5", X = 15, Y = 0, Z = -15, Nominal = 30.0, Actual = 30.1 });
         
-        // Точки сбоку от куба
-        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 6", X = 45, Y = 0, Z = 5, Nominal = 15.0, Actual = 15.3 }); // Красная точка (отклонение > 0.15)
-        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 7", X = -45, Y = 0, Z = -5, Nominal = 15.0, Actual = 14.9 });
+        // Точки для боковых поверхностей
+        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 6", X = 40, Y = 0, Z = 0, Nominal = 15.0, Actual = 15.3 }); // Красная точка (отклонение > 0.15)
+        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 7", X = -40, Y = -5, Z = 0, Nominal = 15.0, Actual = 14.9 });
     }
 
     public RelayCommand LoadModelCommand { get; }
