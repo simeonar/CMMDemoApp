@@ -36,7 +36,7 @@ public interface IFileService
 
 public class FileService : IFileService
 {
-    private readonly string _settingsPath = Path.Combine(
+    private readonly string _settingsPath = System.IO.Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "CMMDemoApp",
         "settings.json");
@@ -50,7 +50,7 @@ public class FileService : IFileService
                 WriteIndented = true 
             });
             
-            await File.WriteAllTextAsync(filePath, json);
+            await System.IO.File.WriteAllTextAsync(filePath, json);
             return true;
         }
         catch
@@ -63,10 +63,10 @@ public class FileService : IFileService
     {
         try
         {
-            if (!File.Exists(filePath))
+            if (!System.IO.File.Exists(filePath))
                 return null;
 
-            var json = await File.ReadAllTextAsync(filePath);
+            var json = await System.IO.File.ReadAllTextAsync(filePath);
             return JsonSerializer.Deserialize<MeasurementProgram>(json);
         }
         catch
@@ -79,10 +79,10 @@ public class FileService : IFileService
     {
         try
         {
-            var directory = Path.GetDirectoryName(_settingsPath);
-            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            var directory = System.IO.Path.GetDirectoryName(_settingsPath);
+            if (!string.IsNullOrEmpty(directory) && !System.IO.Directory.Exists(directory))
             {
-                Directory.CreateDirectory(directory);
+                System.IO.Directory.CreateDirectory(directory);
             }
 
             var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions 
@@ -90,7 +90,7 @@ public class FileService : IFileService
                 WriteIndented = true 
             });
             
-            await File.WriteAllTextAsync(_settingsPath, json);
+            await System.IO.File.WriteAllTextAsync(_settingsPath, json);
             return true;
         }
         catch
@@ -103,10 +103,10 @@ public class FileService : IFileService
     {
         try
         {
-            if (!File.Exists(_settingsPath))
+            if (!System.IO.File.Exists(_settingsPath))
                 return new CMMSettings();
 
-            var json = await File.ReadAllTextAsync(_settingsPath);
+            var json = await System.IO.File.ReadAllTextAsync(_settingsPath);
             return JsonSerializer.Deserialize<CMMSettings>(json) ?? new CMMSettings();
         }
         catch
@@ -128,7 +128,7 @@ public class FileService : IFileService
                 csv.AppendLine($"{result.Name},{result.Nominal:F3},{result.Actual:F3},{result.Deviation:F3},{status}");
             }
             
-            await File.WriteAllTextAsync(filePath, csv.ToString());
+            await System.IO.File.WriteAllTextAsync(filePath, csv.ToString());
             return true;
         }
         catch
