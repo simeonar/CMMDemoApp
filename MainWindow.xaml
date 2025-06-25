@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CMMDemoApp"
-        xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         mc:Ignorable="d"
         Title="KMM Demo App" Height="700" Width="1200"
         Background="{DynamicResource BackgroundBrush}">
@@ -45,7 +44,7 @@
                         <TextBlock Text="Export" FontWeight="Bold" FontSize="16"/>
                     </StackPanel>
                 </Button>
-                <Button Height="56" Margin="10 10 10 0" Click="ShowDemoModel_Click" ToolTip="Demo-Modell anzeigen" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                <Button Height="56" Margin="10 10 10 0" Command="{Binding ShowDemoModelCommand}" ToolTip="Demo-Modell anzeigen" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <TextBlock Text="🟧" FontSize="24" Margin="0,0,8,0"/>
                         <TextBlock Text="Demo-Modell" FontWeight="Bold" FontSize="16"/>
@@ -55,9 +54,51 @@
             <!-- 3D Viewport -->
             <Border Grid.Column="1" Margin="0,20,0,20" CornerRadius="12" Background="{DynamicResource PanelBackgroundBrush}" 
                     Effect="{DynamicResource DropShadowEffect}" >
-                <WindowsFormsHost x:Name="OpenGLHost">
-                    <!-- GLControl будет добавлен в code-behind -->
-                </WindowsFormsHost>
+                <Viewport3D>
+                    <Viewport3D.Camera>
+                        <PerspectiveCamera x:Name="SceneCamera" Position="80,60,120" LookDirection="-1,-0.5,-1" UpDirection="0,1,0" FieldOfView="45"/>
+                    </Viewport3D.Camera>
+                    
+                    <!-- Improved Lighting -->
+                    <ModelVisual3D>
+                        <ModelVisual3D.Content>
+                            <Model3DGroup>
+                                <AmbientLight Color="#606060"/>
+                                <DirectionalLight Color="White" Direction="-1,-1,-1"/>
+                                <DirectionalLight Color="#808080" Direction="1,-0.5,-1"/>
+                                <DirectionalLight Color="#404040" Direction="0,1,-0.5"/>
+                            </Model3DGroup>
+                        </ModelVisual3D.Content>
+                    </ModelVisual3D>
+                    
+                    <!-- Demo-Modell (Würfel) с улучшенным материалом -->
+                    <ModelVisual3D>
+                        <ModelVisual3D.Content>
+                            <GeometryModel3D x:Name="DemoModel" Geometry="{Binding DemoModelGeometry}">
+                                <GeometryModel3D.Material>
+                                    <MaterialGroup>
+                                        <DiffuseMaterial>
+                                            <DiffuseMaterial.Brush>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                    <GradientStop Color="Orange" Offset="0"/>
+                                                    <GradientStop Color="DarkOrange" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </DiffuseMaterial.Brush>
+                                        </DiffuseMaterial>
+                                        <SpecularMaterial Brush="White" SpecularPower="20"/>
+                                    </MaterialGroup>
+                                </GeometryModel3D.Material>
+                                <GeometryModel3D.BackMaterial>
+                                    <DiffuseMaterial Brush="DarkOrange"/>
+                                </GeometryModel3D.BackMaterial>
+                            </GeometryModel3D>
+                        </ModelVisual3D.Content>
+                    </ModelVisual3D>
+                    
+                    <!-- Messpunkte Container -->
+                    <ModelVisual3D x:Name="MeasurementPointsContainer"/>
+                    
+                </Viewport3D>
             </Border>
             <!-- Rechte Infoleiste -->
             <StackPanel Grid.Column="2" Margin="10,20,0,20" Background="{DynamicResource PanelBackgroundBrush}" 

@@ -1,120 +1,172 @@
-﻿using System;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+﻿using System.Windows;
+using System;
+using System.Windows.Media.Media3D;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Forms.Integration;
-using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
-using OpenTK.GLControl;
-using System.Windows.Forms;
-using System.Collections.Generic;
-using CMMDemoApp.Models;
+using System.Windows.Controls;
+using System.ComponentModel;
 
-namespace CMMDemoApp;
-
-/// <summary>
-/// Interaction logic for MainWindow.xaml
-/// </summary>
-public partial class MainWindow : Window
+namespace CMMDemoApp
 {
-    private GLControl? glControl;
-    private bool showDemoCube = false;
-
-    private List<MeasurementResult> demoPoints = new List<MeasurementResult>
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
     {
-        new MeasurementResult { Name = "Punkt 1", X = -10, Y = 0, Z = 0, Nominal = 25.0, Actual = 25.0 },
-        new MeasurementResult { Name = "Punkt 2", X = 0, Y = 0, Z = 0, Nominal = 25.0, Actual = 24.8 },
-        new MeasurementResult { Name = "Punkt 3", X = 10, Y = 0, Z = 0, Nominal = 25.0, Actual = 25.2 }
-    };
+        private MainWindowViewModel? viewModel;
+        private bool isMouseDown = false;
+        private Point lastMousePosition;
+        private PerspectiveCamera? camera;
+        private double cameraDistance = 150;
+        private double cameraTheta = Math.PI / 4; // 45 degrees
+        private double cameraPhi = Math.PI / 6;   // 30 degrees
 
-    public MainWindow()
-    {
-        // If not using XAML, comment out or remove InitializeComponent
-        // InitializeComponent();
-        Loaded += MainWindow_Loaded;
-    }
-
-    private void MainWindow_Loaded(object sender, RoutedEventArgs e)
-    {
-        glControl = new GLControl(); // Без GraphicsMode для совместимости
-        glControl.Dock = DockStyle.Fill;
-        glControl.Paint += GlControl_Paint;
-        glControl.Resize += GlControl_Resize;
-        ((WindowsFormsHost)FindName("OpenGLHost")).Child = glControl;
-    }
-
-    private void GlControl_Resize(object sender, EventArgs e)
-    {
-        if (glControl == null) return;
-        GL.Viewport(0, 0, glControl.Width, glControl.Height);
-    }
-
-    private void ShowDemoModel_Click(object sender, RoutedEventArgs e)
-    {
-        showDemoCube = true;
-        glControl?.Invalidate();
-    }
-
-    private void GlControl_Paint(object sender, PaintEventArgs e)
-    {
-        GL.ClearColor(0.95f, 0.97f, 0.98f, 1.0f);
-        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-        if (showDemoCube)
+        public MainWindow()
         {
-            GL.Begin(PrimitiveType.Quads);
-            GL.Color3(1.0, 0.5, 0.0); // Orange
-            // Front face
-            GL.Vertex3(-1.0, -1.0,  1.0);
-            GL.Vertex3( 1.0, -1.0,  1.0);
-            GL.Vertex3( 1.0,  1.0,  1.0);
-            GL.Vertex3(-1.0,  1.0,  1.0);
-            // Back face
-            GL.Vertex3(-1.0, -1.0, -1.0);
-            GL.Vertex3(-1.0,  1.0, -1.0);
-            GL.Vertex3( 1.0,  1.0, -1.0);
-            GL.Vertex3( 1.0, -1.0, -1.0);
-            // Left face
-            GL.Vertex3(-1.0, -1.0, -1.0);
-            GL.Vertex3(-1.0, -1.0,  1.0);
-            GL.Vertex3(-1.0,  1.0,  1.0);
-            GL.Vertex3(-1.0,  1.0, -1.0);
-            // Right face
-            GL.Vertex3(1.0, -1.0, -1.0);
-            GL.Vertex3(1.0,  1.0, -1.0);
-            GL.Vertex3(1.0,  1.0,  1.0);
-            GL.Vertex3(1.0, -1.0,  1.0);
-            // Top face
-            GL.Vertex3(-1.0, 1.0, -1.0);
-            GL.Vertex3(-1.0, 1.0,  1.0);
-            GL.Vertex3( 1.0, 1.0,  1.0);
-            GL.Vertex3( 1.0, 1.0, -1.0);
-            // Bottom face
-            GL.Vertex3(-1.0, -1.0, -1.0);
-            GL.Vertex3( 1.0, -1.0, -1.0);
-            GL.Vertex3( 1.0, -1.0,  1.0);
-            GL.Vertex3(-1.0, -1.0,  1.0);
-            GL.End();
+            try
+            {
+                InitializeComponent();
+                viewModel = new MainWindowViewModel();
+                DataContext = viewModel;
+                
+                // Subscribe to property changes to update 3D content
+                viewModel.PropertyChanged += ViewModel_PropertyChanged;
+                
+                // Initialize camera
+                InitializeCamera();
+                
+                // Add mouse events for 3D rotation
+                Viewport3D? viewport = FindViewport3D();
+                if (viewport != null)
+                {
+                    viewport.MouseDown += Viewport_MouseDown;
+                    viewport.MouseMove += Viewport_MouseMove;
+                    viewport.MouseUp += Viewport_MouseUp;
+                    viewport.MouseWheel += Viewport_MouseWheel;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fehler beim Initialisieren: {ex.Message}\n\nStack Trace:\n{ex.StackTrace}", 
+                    "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                throw;
+            }
         }
-        // Рисуем точки
-        GL.PointSize(10f);
-        GL.Begin(PrimitiveType.Points);
-        foreach (var pt in demoPoints)
+
+        private void InitializeCamera()
         {
-            if (Math.Abs(pt.Deviation) < 0.15)
-                GL.Color3(0.2, 0.8, 0.2); // зелёный
-            else
-                GL.Color3(0.9, 0.2, 0.2); // красный
-            GL.Vertex3(pt.X / 30.0, pt.Y / 30.0, pt.Z / 30.0); // нормализация для куба
+            // Используем именованную камеру из XAML
+            camera = SceneCamera;
+            if (camera != null)
+            {
+                // Устанавливаем начальные параметры камеры
+                cameraDistance = 200; // Увеличиваем расстояние
+                cameraTheta = Math.PI / 4; // 45 degrees
+                cameraPhi = Math.PI / 6;   // 30 degrees
+                UpdateCameraPosition();
+            }
         }
-        GL.End();
-        glControl?.SwapBuffers();
+
+        private Viewport3D? FindViewport3D()
+        {
+            return FindChild<Viewport3D>(this);
+        }
+
+        private T? FindChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            if (parent == null) return null;
+
+            for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
+                if (child is T result)
+                    return result;
+
+                var childOfChild = FindChild<T>(child);
+                if (childOfChild != null)
+                    return childOfChild;
+            }
+            return null;
+        }
+
+        private void UpdateCameraPosition()
+        {
+            if (camera == null) return;
+
+            // Центр объекта (куб 60x30x15)
+            var target = new Point3D(0, 0, 0);
+            
+            double x = target.X + cameraDistance * Math.Sin(cameraTheta) * Math.Cos(cameraPhi);
+            double y = target.Y + cameraDistance * Math.Sin(cameraPhi);
+            double z = target.Z + cameraDistance * Math.Cos(cameraTheta) * Math.Cos(cameraPhi);
+
+            camera.Position = new Point3D(x, y, z);
+            camera.LookDirection = new Vector3D(target.X - x, target.Y - y, target.Z - z);
+            camera.UpDirection = new Vector3D(0, 1, 0);
+        }
+
+        private void Viewport_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                isMouseDown = true;
+                lastMousePosition = e.GetPosition(sender as IInputElement);
+                ((FrameworkElement)sender).CaptureMouse();
+            }
+        }
+
+        private void Viewport_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isMouseDown && e.LeftButton == MouseButtonState.Pressed)
+            {
+                Point currentPosition = e.GetPosition(sender as IInputElement);
+                double deltaX = currentPosition.X - lastMousePosition.X;
+                double deltaY = currentPosition.Y - lastMousePosition.Y;
+
+                // Rotate around Y axis (horizontal mouse movement)
+                cameraTheta += deltaX * 0.01;
+                
+                // Rotate around X axis (vertical mouse movement)
+                cameraPhi += deltaY * 0.01;
+                
+                // Limit vertical rotation
+                cameraPhi = Math.Max(-Math.PI / 2 + 0.1, Math.Min(Math.PI / 2 - 0.1, cameraPhi));
+
+                UpdateCameraPosition();
+                lastMousePosition = currentPosition;
+            }
+        }
+
+        private void Viewport_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (isMouseDown)
+            {
+                isMouseDown = false;
+                ((FrameworkElement)sender).ReleaseMouseCapture();
+            }
+        }
+
+        private void Viewport_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            // Zoom in/out
+            cameraDistance -= e.Delta * 0.1;
+            cameraDistance = Math.Max(50, Math.Min(500, cameraDistance));
+            UpdateCameraPosition();
+        }
+
+        private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(MainWindowViewModel.MeasurementPointsModel) && viewModel?.MeasurementPointsModel != null)
+            {
+                // Clear existing measurement points
+                MeasurementPointsContainer.Children.Clear();
+                
+                // Add each model from the group as a separate ModelVisual3D
+                foreach (var model in viewModel.MeasurementPointsModel.Children)
+                {
+                    var visual = new ModelVisual3D { Content = model };
+                    MeasurementPointsContainer.Children.Add(visual);
+                }
+            }
+        }
     }
 }
