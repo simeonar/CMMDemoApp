@@ -55,11 +55,7 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private string _measurementStatus = string.Empty;
 
-    [ObservableProperty]
-    private double _overallProgress;
-
-    [ObservableProperty]
-    private double _currentPointProgress;
+    // Progress tracking is now handled through SelectedPoint.MeasurementProgress
 
     private readonly IMeasurementService _measurementService;
     private readonly IMeasurementSimulationService _simulationService;
@@ -428,7 +424,7 @@ public partial class MainWindowViewModel : ObservableObject
                     {
                         try
                         {
-                            MeasurementStatus = $"Messe Punkt: {point.Name} in {part.Name}";
+                            SelectedPoint = point;
                             
                             // Simulate detailed measurement process
                             await SimulatePointMeasurementAsync(point);
@@ -522,41 +518,16 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
-    // Add method to update overall progress
-    private void UpdateOverallProgress()
-    {
-        if (Parts == null || Parts.Count == 0)
-        {
-            OverallProgress = 0;
-            return;
-        }
-
-        int totalPoints = Parts.Sum(p => p.Points.Count);
-        if (totalPoints == 0)
-        {
-            OverallProgress = 0;
-            return;
-        }
-
-        int completedPoints = Parts.Sum(p => p.Points.Count(point => 
-            point.Status == Models.MeasurementStatus.Completed || 
-            point.Status == Models.MeasurementStatus.Failed));
-
-        OverallProgress = (completedPoints * 100.0) / totalPoints;
-    }
-
     // Subscribe to changes in Parts collection
     partial void OnPartsChanged(ObservableCollection<PartMeasurement> value)
-    {
-        if (value != null)
-        {
-            value.CollectionChanged += Parts_CollectionChanged;
-            foreach (var part in value)
+    {            if (value != null)
             {
-                SubscribeToPartEvents(part);
+                value.CollectionChanged += Parts_CollectionChanged;
+                foreach (var part in value)
+                {
+                    SubscribeToPartEvents(part);
+                }
             }
-        }
-        UpdateOverallProgress();
     }
 
     private void Parts_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -576,8 +547,6 @@ public partial class MainWindowViewModel : ObservableObject
                 SubscribeToPartEvents(part);
             }
         }
-
-        UpdateOverallProgress();
     }
 
     private void SubscribeToPartEvents(PartMeasurement part)
@@ -602,11 +571,7 @@ public partial class MainWindowViewModel : ObservableObject
 
     private void Part_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(PartMeasurement.OverallStatus) ||
-            e.PropertyName == nameof(PartMeasurement.OverallProgress))
-        {
-            UpdateOverallProgress();
-        }
+        // Part property changes are now handled through UI bindings
     }
 
     private void Points_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -626,29 +591,22 @@ public partial class MainWindowViewModel : ObservableObject
                 point.PropertyChanged += Point_PropertyChanged;
             }
         }
-
-        UpdateOverallProgress();
     }
 
     private void Point_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(MeasurementPoint.Status))
-        {
-            UpdateOverallProgress();
-        }
+        // Point property changes are now handled through UI bindings
     }
 
     private async Task SimulatePointMeasurementAsync(MeasurementPoint point)
     {
         point.IsInProgress = true;
         point.MeasurementProgress = 0;
-        CurrentPointProgress = 0;
 
         // Simulate robot movement to point (30% of time)
         for (int i = 0; i <= 30; i += 2)
         {
             point.MeasurementProgress = i;
-            CurrentPointProgress = i;
             await Task.Delay(_random.Next(50, 100)); // Random delay to simulate varying movement speed
         }
 
@@ -656,7 +614,6 @@ public partial class MainWindowViewModel : ObservableObject
         for (int i = 30; i <= 40; i += 2)
         {
             point.MeasurementProgress = i;
-            CurrentPointProgress = i;
             await Task.Delay(_random.Next(100, 150)); // Slower, more precise movement
         }
 
@@ -664,7 +621,6 @@ public partial class MainWindowViewModel : ObservableObject
         for (int i = 40; i <= 80; i += 2)
         {
             point.MeasurementProgress = i;
-            CurrentPointProgress = i;
             await Task.Delay(_random.Next(75, 125)); // Regular measurement speed
         }
 
@@ -672,12 +628,10 @@ public partial class MainWindowViewModel : ObservableObject
         for (int i = 80; i <= 100; i += 4)
         {
             point.MeasurementProgress = i;
-            CurrentPointProgress = i;
             await Task.Delay(_random.Next(50, 75)); // Faster retraction movement
         }
 
         point.MeasurementProgress = 100;
-        CurrentPointProgress = 100;
         point.IsInProgress = false;
     }
 }

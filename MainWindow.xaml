@@ -10,32 +10,22 @@
     <DockPanel>
         <!-- Statusbar -->
         <StatusBar DockPanel.Dock="Bottom" Background="{DynamicResource PanelBackgroundBrush}" Foreground="{DynamicResource TextPrimaryBrush}" Height="28" Padding="10,0">
-            <StatusBarItem MinWidth="200">
+            <StatusBarItem MinWidth="300">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Status: "/>
-                    <TextBlock Text="{Binding MeasurementStatus}" Margin="5,0,0,0"/>
+                    <TextBlock Text="{Binding SelectedPoint.Name}" Margin="5,0,5,0" MinWidth="100"/>
+                    <ProgressBar Value="{Binding SelectedPoint.MeasurementProgress}" Width="60" Height="14" Margin="5,0,5,0"/>
+                    <TextBlock Text="{Binding SelectedPoint.MeasurementProgress, StringFormat={}{0:F0}%}" Width="35"/>
                 </StackPanel>
             </StatusBarItem>
             <Separator/>
-            <StatusBarItem MinWidth="150">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Punkt: "/>
-                    <ProgressBar Value="{Binding CurrentPointProgress}" Width="60" Height="14" Margin="5,0,5,0"/>
-                    <TextBlock Text="{Binding CurrentPointProgress, StringFormat={}{0:F0}%}" Width="35"/>
-                </StackPanel>
+            <StatusBarItem>
+                <TextBlock Text="Benutzer: Demo" Margin="5,0"/>
             </StatusBarItem>
             <Separator/>
-            <StatusBarItem MinWidth="150">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Gesamt: "/>
-                    <ProgressBar Value="{Binding OverallProgress}" Width="60" Height="14" Margin="5,0,5,0"/>
-                    <TextBlock Text="{Binding OverallProgress, StringFormat={}{0:F1}%}" Width="35"/>
-                </StackPanel>
+            <StatusBarItem HorizontalAlignment="Right">
+                <TextBlock Text="{Binding Now, StringFormat='{}{0:HH:mm}'}" Margin="5,0"/>
             </StatusBarItem>
-            <Separator/>
-            <StatusBarItem Content="Benutzer: Demo"/>
-            <Separator/>
-            <StatusBarItem Content="{Binding Now, StringFormat='{}{0:HH:mm}'}" HorizontalAlignment="Right"/>
         </StatusBar>
         <Grid>
             <Grid.ColumnDefinitions>
