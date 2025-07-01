@@ -367,3 +367,6 @@ FodyWeavers.xsd
 *.user
 *.userosscache
 *.sln.docstates
+
+/instructions/
+.github/instructions/cmm.instructions.md

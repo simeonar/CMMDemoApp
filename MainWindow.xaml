@@ -52,57 +52,6 @@
                     </Button>
                 </StackPanel>
             </Border>
-            <!-- 3D Viewport mit Mausereignissen -->
-            <Border Grid.Column="1" Margin="0,20,0,20" Style="{StaticResource ModernPanel}">
-                <Viewport3D x:Name="MainViewport3D" 
-                           MouseDown="Viewport_MouseDown" 
-                           MouseMove="Viewport_MouseMove" 
-                           MouseUp="Viewport_MouseUp" 
-                           MouseWheel="Viewport_MouseWheel">
-                    <Viewport3D.Camera>
-                        <PerspectiveCamera x:Name="SceneCamera" Position="80,60,120" LookDirection="-1,-0.5,-1" UpDirection="0,1,0" FieldOfView="45"/>
-                    </Viewport3D.Camera>
-                    
-                    <!-- Improved Lighting -->
-                    <ModelVisual3D>
-                        <ModelVisual3D.Content>
-                            <Model3DGroup>
-                                <AmbientLight Color="#606060"/>
-                                <DirectionalLight Color="White" Direction="-1,-1,-1"/>
-                                <DirectionalLight Color="#808080" Direction="1,-0.5,-1"/>
-                                <DirectionalLight Color="#404040" Direction="0,1,-0.5"/>
-                            </Model3DGroup>
-                        </ModelVisual3D.Content>
-                    </ModelVisual3D>
-                    
-                    <!-- Demo-Modell (Würfel) mit verbessertem Material -->
-                    <ModelVisual3D x:Name="DemoModelContainer">
-                        <ModelVisual3D.Content>
-                            <GeometryModel3D x:Name="DemoModel" Geometry="{Binding DemoModelGeometry, UpdateSourceTrigger=PropertyChanged}">
-                                <GeometryModel3D.Material>
-                                    <MaterialGroup>
-                                        <DiffuseMaterial>
-                                            <DiffuseMaterial.Brush>
-                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                                    <GradientStop Color="Orange" Offset="0"/>
-                                                    <GradientStop Color="DarkOrange" Offset="1"/>
-                                                </LinearGradientBrush>
-                                            </DiffuseMaterial.Brush>
-                                        </DiffuseMaterial>
-                                        <SpecularMaterial Brush="White" SpecularPower="20"/>
-                                    </MaterialGroup>
-                                </GeometryModel3D.Material>
-                                <GeometryModel3D.BackMaterial>
-                                    <DiffuseMaterial Brush="DarkOrange"/>
-                                </GeometryModel3D.BackMaterial>
-                            </GeometryModel3D>
-                        </ModelVisual3D.Content>
-                    </ModelVisual3D>
-                    
-                    <!-- Messpunkte Container wird programmatisch erstellt -->
-                    
-                </Viewport3D>
-            </Border>
             <!-- Vertical GridSplitter between 3D and right panel -->
             <GridSplitter Grid.Column="2" Width="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource PanelBorderBrush}" ShowsPreview="True"/>
             <!-- Rechte Infoleiste -->

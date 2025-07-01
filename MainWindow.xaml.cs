@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Controls;
 using System.ComponentModel;
 using System.Diagnostics;
+using CMMDemoApp.Views;
 
 namespace CMMDemoApp
 {
@@ -191,6 +192,20 @@ namespace CMMDemoApp
             if (e.PropertyName == nameof(MainWindowViewModel.MeasurementPointsModel))
             {
                 UpdateMeasurementPoints();
+            }
+        }
+
+        private void OpenDemoModelWindow_Click(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("[CMM] Кнопка Demo Model нажата, вызываем ShowDemoModel из ViewModel.");
+            if (viewModel != null)
+            {
+                viewModel.ShowDemoModel();
+            }
+            else
+            {
+                Debug.WriteLine("[CMM] Ошибка: viewModel равен null");
+                MessageBox.Show("Ошибка: не удалось отобразить 3D модель", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
