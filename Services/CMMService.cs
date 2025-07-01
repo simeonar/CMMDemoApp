@@ -1,4 +1,7 @@
+using System;
 using System.Numerics;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using CMMDemoApp.Models;
 
 namespace CMMDemoApp.Services;
@@ -39,6 +42,7 @@ public class CMMService : ICMMService
     private Vector3 _currentProbePosition = Vector3.Zero;
     private readonly Random _random = new();
     private bool _isCalibrated = false;
+    private const double DefaultTolerance = 0.01; // ±10 micrometers
 
     public Vector3 GetCurrentProbePosition() => _currentProbePosition;
 
@@ -58,26 +62,30 @@ public class CMMService : ICMMService
             throw new InvalidOperationException("Tastkopf ist nicht kalibriert!");
         }
 
-        // Tastkopf zum Messpunkt bewegen
+        // Move probe to measurement point
         await MoveProbeAsync(targetPosition);
         
-        // Simulation der Messzeit
+        // Simulate measurement time
         await Task.Delay(50);
         
-        // Simulation einer realen Messung mit kleinem Fehler
-        var measurementError = (_random.NextDouble() - 0.5) * 0.02; // ±10 Mikrometer
-        var nominalValue = targetPosition.Length();
-        var actualValue = nominalValue + measurementError;
-        var deviation = actualValue - nominalValue;
+        // Simulate real measurement with small error
+        var deviationX = (_random.NextDouble() - 0.5) * DefaultTolerance;
+        var deviationY = (_random.NextDouble() - 0.5) * DefaultTolerance;
+        var deviationZ = (_random.NextDouble() - 0.5) * DefaultTolerance;
+        
+        var actualPosition = targetPosition + new Vector3((float)deviationX, (float)deviationY, (float)deviationZ);
+        var maxDeviation = Math.Max(Math.Abs((float)deviationX), Math.Max(Math.Abs((float)deviationY), Math.Abs((float)deviationZ)));
         
         return new MeasurementResult
         {
             Name = pointName,
             PointId = pointName,  // Using pointName as PointId for now
-            Nominal = nominalValue.ToString("F3"),
-            Actual = actualValue.ToString("F3"),
-            Deviation = deviation.ToString("F3"),
-            Status = Math.Abs(deviation) <= 0.01 ? "OK" : "NOK"  // Using 0.01 as default tolerance
+            Nominal = targetPosition,
+            Actual = actualPosition,
+            Deviation = maxDeviation,
+            ToleranceMin = -DefaultTolerance,
+            ToleranceMax = DefaultTolerance,
+            Status = maxDeviation <= DefaultTolerance ? MeasurementStatus.Completed : MeasurementStatus.Failed
         };
     }
 
@@ -98,9 +106,14 @@ public class CMMService : ICMMService
 
     public async Task<bool> CalibrateProbeAsync()
     {
+        if (_isCalibrated)
+            return true;
+
         // Simulation der Tastkopfkalibrierung
-        await Task.Delay(2000);
+        await Task.Delay(2000); // Simulation der Kalibrierungszeit
         _isCalibrated = true;
+        _currentProbePosition = Vector3.Zero; // Nach der Kalibrierung zur Home-Position zurücksetzen
+        
         return true;
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using System.Threading.Tasks;
 using CMMDemoApp.Models;
 
@@ -26,22 +27,34 @@ public class MeasurementSimulationService : IMeasurementSimulationService
         // Simulate measurement delay
         await Task.Delay(_random.Next(500, 2000));
 
-        // Generate random deviation within tolerance range
-        var deviation = (point.ToleranceMax - point.ToleranceMin) * (_random.NextDouble() - 0.5);
-        
-        // Create actual coordinates with deviation
-        var actualX = point.NominalX + _random.NextDouble() * deviation;
-        var actualY = point.NominalY + _random.NextDouble() * deviation;
-        var actualZ = point.NominalZ + _random.NextDouble() * deviation;
+        // Create nominal vector
+        var nominal = new Vector3((float)point.NominalX, (float)point.NominalY, (float)point.NominalZ);
 
-        return new MeasurementResult
+        // Generate random deviations within tolerance range
+        var deviationX = (float)((point.ToleranceMax - point.ToleranceMin) * (_random.NextDouble() - 0.5));
+        var deviationY = (float)((point.ToleranceMax - point.ToleranceMin) * (_random.NextDouble() - 0.5));
+        var deviationZ = (float)((point.ToleranceMax - point.ToleranceMin) * (_random.NextDouble() - 0.5));
+        
+        // Create deviation vector and actual measurement vector
+        var deviationVector = new Vector3(deviationX, deviationY, deviationZ);
+        var actual = nominal + deviationVector;
+
+        // Calculate maximum absolute deviation
+        var maxDeviation = Math.Max(Math.Abs(deviationX), Math.Max(Math.Abs(deviationY), Math.Abs(deviationZ)));
+
+        var result = new MeasurementResult
         {
             PointId = point.PointId,
             Name = point.Name,
-            Nominal = $"({point.NominalX:F3}, {point.NominalY:F3}, {point.NominalZ:F3})",
-            Actual = $"({actualX:F3}, {actualY:F3}, {actualZ:F3})",
-            Deviation = $"{deviation:F3}",
-            Status = Math.Abs(deviation) <= point.ToleranceMax ? "OK" : "Out of Tolerance"
+            Nominal = nominal,
+            Actual = actual,
+            Deviation = maxDeviation,
+            ToleranceMin = point.ToleranceMin,
+            ToleranceMax = point.ToleranceMax,
+            Status = maxDeviation <= point.ToleranceMax && maxDeviation >= point.ToleranceMin ? 
+                MeasurementStatus.Completed : MeasurementStatus.Failed
         };
+
+        return result;
     }
 }

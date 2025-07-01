@@ -10,7 +10,20 @@
     <DockPanel>
         <!-- Statusbar -->
         <StatusBar DockPanel.Dock="Bottom" Background="{DynamicResource PanelBackgroundBrush}" Foreground="{DynamicResource TextPrimaryBrush}" Height="28" Padding="10,0">
-            <StatusBarItem Content="Status: Bereit"/>
+            <StatusBarItem>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Status: "/>
+                    <TextBlock Text="{Binding MeasurementStatus}" Margin="5,0,0,0"/>
+                </StackPanel>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <StackPanel Orientation="Horizontal" MinWidth="200">
+                    <TextBlock Text="Fortschritt: "/>
+                    <ProgressBar Value="{Binding OverallProgress}" Width="100" Height="14" Margin="5,0,5,0"/>
+                    <TextBlock Text="{Binding OverallProgress, StringFormat={}{0:F1}%}"/>
+                </StackPanel>
+            </StatusBarItem>
             <Separator/>
             <StatusBarItem Content="Benutzer: Demo"/>
             <Separator/>

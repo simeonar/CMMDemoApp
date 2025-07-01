@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Numerics;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -47,6 +48,15 @@ public partial class MainWindowViewModel : ObservableObject
     
     [ObservableProperty]
     private ObservableCollection<PartMeasurement> _parts = new();
+
+    [ObservableProperty]
+    private bool _isMeasurementInProgress;
+
+    [ObservableProperty]
+    private string _measurementStatus = string.Empty;
+
+    [ObservableProperty]
+    private double _overallProgress;
 
     private readonly IMeasurementService _measurementService;
     private readonly IMeasurementSimulationService _simulationService;
@@ -100,11 +110,13 @@ public partial class MainWindowViewModel : ObservableObject
             MeasurementResults.Add(new MeasurementResult 
             { 
                 Name = "X-Position",
-                Nominal = selectedPoint.NominalX.ToString("F3"),
-                Actual = selectedPoint.MeasuredX?.ToString("F3") ?? "Not measured",
-                Deviation = selectedPoint.MeasuredX.HasValue 
-                    ? (selectedPoint.MeasuredX.Value - selectedPoint.NominalX).ToString("F3")
-                    : "N/A"
+                Nominal = new Vector3((float)selectedPoint.NominalX, 0, 0),
+                Actual = new Vector3((float)selectedPoint.MeasuredX.Value, 0, 0),
+                Deviation = Math.Abs(selectedPoint.MeasuredX.Value - selectedPoint.NominalX),
+                ToleranceMin = selectedPoint.ToleranceMin,
+                ToleranceMax = selectedPoint.ToleranceMax,
+                Status = Math.Abs(selectedPoint.MeasuredX.Value - selectedPoint.NominalX) <= selectedPoint.ToleranceMax ? 
+                    Models.MeasurementStatus.Completed : Models.MeasurementStatus.Failed
             });
         }
         if (selectedPoint.MeasuredY.HasValue)
@@ -112,11 +124,13 @@ public partial class MainWindowViewModel : ObservableObject
             MeasurementResults.Add(new MeasurementResult 
             { 
                 Name = "Y-Position",
-                Nominal = selectedPoint.NominalY.ToString("F3"),
-                Actual = selectedPoint.MeasuredY?.ToString("F3") ?? "Not measured",
-                Deviation = selectedPoint.MeasuredY.HasValue 
-                    ? (selectedPoint.MeasuredY.Value - selectedPoint.NominalY).ToString("F3")
-                    : "N/A"
+                Nominal = new Vector3(0, (float)selectedPoint.NominalY, 0),
+                Actual = new Vector3(0, (float)selectedPoint.MeasuredY.Value, 0),
+                Deviation = Math.Abs(selectedPoint.MeasuredY.Value - selectedPoint.NominalY),
+                ToleranceMin = selectedPoint.ToleranceMin,
+                ToleranceMax = selectedPoint.ToleranceMax,
+                Status = Math.Abs(selectedPoint.MeasuredY.Value - selectedPoint.NominalY) <= selectedPoint.ToleranceMax ? 
+                    Models.MeasurementStatus.Completed : Models.MeasurementStatus.Failed
             });
         }
         if (selectedPoint.MeasuredZ.HasValue)
@@ -124,11 +138,13 @@ public partial class MainWindowViewModel : ObservableObject
             MeasurementResults.Add(new MeasurementResult 
             { 
                 Name = "Z-Position",
-                Nominal = selectedPoint.NominalZ.ToString("F3"),
-                Actual = selectedPoint.MeasuredZ?.ToString("F3") ?? "Not measured",
-                Deviation = selectedPoint.MeasuredZ.HasValue 
-                    ? (selectedPoint.MeasuredZ.Value - selectedPoint.NominalZ).ToString("F3")
-                    : "N/A"
+                Nominal = new Vector3(0, 0, (float)selectedPoint.NominalZ),
+                Actual = new Vector3(0, 0, (float)selectedPoint.MeasuredZ.Value),
+                Deviation = Math.Abs(selectedPoint.MeasuredZ.Value - selectedPoint.NominalZ),
+                ToleranceMin = selectedPoint.ToleranceMin,
+                ToleranceMax = selectedPoint.ToleranceMax,
+                Status = Math.Abs(selectedPoint.MeasuredZ.Value - selectedPoint.NominalZ) <= selectedPoint.ToleranceMax ? 
+                    Models.MeasurementStatus.Completed : Models.MeasurementStatus.Failed
             });
         }
     }
@@ -378,20 +394,108 @@ public partial class MainWindowViewModel : ObservableObject
 
     private async Task StartMeasurementAsync()
     {
-        foreach (var part in Parts)
+        if (IsMeasurementInProgress)
         {
-            foreach (var point in part.Points)
+            MessageBox.Show("Eine Messung läuft bereits.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        if (Parts.Count == 0)
+        {
+            MessageBox.Show("Bitte laden Sie zuerst ein Messprogramm.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        try
+        {
+            IsMeasurementInProgress = true;
+            OverallProgress = 0;
+            MeasurementResults.Clear(); // Clear previous results
+
+            // Count total points for progress calculation
+            int totalPoints = Parts.Sum(p => p.Points.Count);
+            int completedPoints = 0;
+
+            foreach (var part in Parts)
             {
-                if (point.Status == MeasurementStatus.NotStarted || point.Status == MeasurementStatus.Failed)
+                MeasurementStatus = $"Messe Teil: {part.Name}";
+                part.IsExpanded = true;
+
+                foreach (var point in part.Points)
                 {
-                    await SimulateMeasurementAsync(point);
-                    // Add a small delay between measurements to make it more realistic
-                    await Task.Delay(500);
+                    // Check if point needs measurement
+                    if (point.Status is Models.MeasurementStatus.NotStarted or Models.MeasurementStatus.Failed)
+                    {
+                        try
+                        {
+                            point.MeasurementProgress = 0;
+                            point.IsInProgress = true;
+                            MeasurementStatus = $"Messe Punkt: {point.Name} in {part.Name}";
+
+                            // Simulate measurement progress
+                            for (int i = 0; i <= 100; i += 10)
+                            {
+                                point.MeasurementProgress = i;
+                                await Task.Delay(50); // Simulate measurement steps
+                            }
+
+                            var result = await _simulationService.SimulateMeasurementAsync(point);
+                            
+                            // Update point with measurement results
+                            point.MeasuredX = (double)result.Actual.X;
+                            point.MeasuredY = (double)result.Actual.Y;
+                            point.MeasuredZ = (double)result.Actual.Z;
+                            
+                            point.Status = result.IsWithinTolerance ? Models.MeasurementStatus.Completed : Models.MeasurementStatus.Failed;
+                            
+                            // Add result to the results table
+                            MeasurementResults.Add(result);
+
+                            // Update point info if this point is selected
+                            if (point == SelectedPoint)
+                            {
+                                SelectedPointInfo = $"Point: {point.Name}\nNominal: {result.FormattedNominal}\nActual: {result.FormattedActual}\nDeviation: {result.FormattedDeviation}\nStatus: {result.Status}";
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            point.Status = Models.MeasurementStatus.Failed;
+                            Debug.WriteLine($"Error measuring point {point.Name}: {ex.Message}");
+                        }
+                        finally
+                        {
+                            point.IsInProgress = false;
+                            point.MeasurementProgress = 100;
+                            completedPoints++;
+                            OverallProgress = (completedPoints * 100.0) / totalPoints;
+                        }
+                    }
+                    else
+                    {
+                        completedPoints++;
+                        OverallProgress = (completedPoints * 100.0) / totalPoints;
+                    }
+
+                    if (point.IsSelected)
+                    {
+                        UpdateSelectedPointInfo();
+                        UpdateMeasurementResults();
+                    }
                 }
             }
+
+            MeasurementStatus = "Messung abgeschlossen";
+            MessageBox.Show("Messung aller Punkte abgeschlossen.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
         }
-        
-        MessageBox.Show("Measurement process completed!", "CMM System", MessageBoxButton.OK, MessageBoxImage.Information);
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error during measurement: {ex.Message}");
+            MessageBox.Show($"Fehler während der Messung: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            IsMeasurementInProgress = false;
+        }
     }
 
     private async Task SimulateMeasurementAsync(MeasurementPoint? point)
@@ -400,16 +504,24 @@ public partial class MainWindowViewModel : ObservableObject
 
         try
         {
-            point.Status = MeasurementStatus.InProgress;
+            point.Status = Models.MeasurementStatus.InProgress;
             var result = await _simulationService.SimulateMeasurementAsync(point);
             MeasurementResults.Add(result);
-            point.Status = result.IsWithinTolerance ? MeasurementStatus.Completed : MeasurementStatus.Failed;
+
+            // Take over measured values from result
+            point.MeasuredX = (double)result.Actual.X;
+            point.MeasuredY = (double)result.Actual.Y;
+            point.MeasuredZ = (double)result.Actual.Z;
+
+            // Update point status based on result
+            point.Status = result.IsWithinTolerance ? Models.MeasurementStatus.Completed : Models.MeasurementStatus.Failed;
+
             SelectedPointInfo = $"Point: {point.Name}\nNominal: {result.Nominal}\nActual: {result.Actual}\nDeviation: {result.Deviation}\nStatus: {result.Status}";
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Error during measurement simulation: {ex.Message}");
-            point.Status = MeasurementStatus.Failed;
+            point.Status = Models.MeasurementStatus.Failed;
             MessageBox.Show("Error during measurement: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
