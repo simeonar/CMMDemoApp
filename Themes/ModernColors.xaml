@@ -24,7 +24,116 @@
     <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}"/>
     <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorColor}"/>
     <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}"/>
+    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="{StaticResource BackgroundLight}"/>
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextColor}"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#8A94A7"/>
+    <SolidColorBrush x:Key="GridLineBrush" Color="#E0E0E0"/>
+    <SolidColorBrush x:Key="ButtonHoverBrush" Color="#D3D3D3"/>
+    <SolidColorBrush x:Key="ButtonPressedBrush" Color="#B0B0B0"/>
 
     <!-- Drop shadow effect for modern panel appearance -->
     <DropShadowEffect x:Key="DropShadowEffect" BlurRadius="12" ShadowDepth="2" Color="#22000000" Opacity="0.4"/>
+    <DropShadowEffect x:Key="PanelShadow" BlurRadius="16" ShadowDepth="0" Color="#66000000" Opacity="0.4"/>
+
+    <!-- Modern Panel Style -->
+    <Style x:Key="ModernPanel" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}"/>
+        <Setter Property="CornerRadius" Value="14"/>
+        <Setter Property="Effect" Value="{StaticResource DropShadowEffect}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
+    <!-- Modern Button Style -->
+    <Style x:Key="ModernButton" TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="MinHeight" Value="48"/>
+        <Setter Property="MinWidth" Value="120"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Effect" Value="{StaticResource DropShadowEffect}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- Modern DataGrid Style -->
+    <Style x:Key="ModernDataGrid" TargetType="DataGrid">
+        <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="RowBackground" Value="{StaticResource PanelBackgroundBrush}"/>
+        <Setter Property="AlternatingRowBackground" Value="{StaticResource PanelBackgroundBrushDark}"/>
+        <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource BorderBrush}"/>
+        <Setter Property="VerticalGridLinesBrush" Value="{StaticResource BorderBrush}"/>
+        <Setter Property="RowHeaderWidth" Value="0"/>
+        <Setter Property="ColumnHeaderHeight" Value="32"/>
+        <Setter Property="RowHeight" Value="32"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+        <Setter Property="SelectionMode" Value="Single"/>
+        <Setter Property="SelectionUnit" Value="FullRow"/>
+        <Setter Property="EnableRowVirtualization" Value="True"/>
+        <Setter Property="CanUserAddRows" Value="False"/>
+        <Setter Property="CanUserDeleteRows" Value="False"/>
+    </Style>
+
+    <!-- Modern TreeView Style -->
+    <Style x:Key="ModernTreeView" TargetType="TreeView">
+        <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="TreeViewItem">
+                    <Setter Property="Margin" Value="5"/>
+                    <Setter Property="Padding" Value="5"/>
+                    <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}"/>
+                    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Modern ScrollBar Style -->
+    <Style x:Key="ModernScrollBar" TargetType="ScrollBar">
+        <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+        <Setter Property="Width" Value="8"/>
+        <Setter Property="Height" Value="8"/>
+    </Style>
+
+    <!-- Modern TextBox Style -->
+    <Style x:Key="ModernTextBox" TargetType="TextBox">
+        <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8">
+                        <ScrollViewer x:Name="PART_ContentHost"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Modern DataGridTextColumn Element Style -->
+    <Style x:Key="ModernDataGridTextColumnElementStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        <Setter Property="FontSize" Value="15"/>
+    </Style>
 </ResourceDictionary>

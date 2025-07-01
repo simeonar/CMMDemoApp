@@ -7,8 +7,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Themes/ModernDarkTheme.xaml" />
-                <!-- <ResourceDictionary Source="Themes/ModernColors.xaml" /> -->
+                <ResourceDictionary Source="Themes/ModernColors.xaml" />
             </ResourceDictionary.MergedDictionaries>
             
             <!-- View Model Locator -->
