@@ -31,7 +31,7 @@ namespace CMMDemoApp.Views
             {
                 InitializeComponent();
                 
-                // Инициализация ViewModel
+                // Initialisierung des ViewModels
                 try
                 {
                     var vmFromDi = Ioc.Default.GetService<DemoModelViewModel>();
@@ -79,44 +79,43 @@ namespace CMMDemoApp.Views
             _sceneCamera = this.FindName("SceneCamera") as PerspectiveCamera;
             _demoViewport = this.FindName("DemoViewport") as Viewport3D;
             
-            Debug.WriteLine($"[CMM] SceneCamera: {(_sceneCamera != null ? "found" : "not found")}");
-            Debug.WriteLine($"[CMM] DemoViewport: {(_demoViewport != null ? "found" : "not found")}");
-            Debug.WriteLine($"[CMM] DemoModelGeometry: {(_viewModel.DemoModelGeometry != null ? "not null" : "null")}");
-            
-            if (_demoViewport != null)
-            {
-                _demoViewport.MouseWheel += DemoViewport_MouseWheel;
-                _demoViewport.MouseLeftButtonDown += DemoViewport_MouseLeftButtonDown;
-                _demoViewport.MouseLeftButtonUp += DemoViewport_MouseLeftButtonUp;
-                _demoViewport.MouseMove += DemoViewport_MouseMove;
-                Debug.WriteLine("[CMM] Added mouse event handlers to viewport");
+            Debug.WriteLine($"[CMM] SceneCamera: {(_sceneCamera != null ? "found" : "not found")}");                Debug.WriteLine($"[CMM] DemoViewport: {(_demoViewport != null ? "found" : "not found")}");
+                Debug.WriteLine($"[CMM] DemoModelGeometry: {(_viewModel.DemoModelGeometry != null ? "not null" : "null")}");
                 
-                // Проверим все дочерние элементы Viewport3D
-                var modelVisuals = _demoViewport.Children.OfType<ModelVisual3D>().ToList();
-                Debug.WriteLine($"[CMM] Viewport contains {modelVisuals.Count} ModelVisual3D elements");
-                
-                // Найдем контейнер модели
-                var demoModelContainer = this.FindName("DemoModelContainer") as ModelVisual3D;
-                Debug.WriteLine($"[CMM] DemoModelContainer: {(demoModelContainer != null ? "found" : "not found")}");
-                
-                // Проверим подключение DemoModelGeometry
-                var demoModel = this.FindName("DemoModel") as GeometryModel3D;
-                if (demoModel != null)
+                if (_demoViewport != null)
                 {
-                    Debug.WriteLine($"[CMM] DemoModel: found, geometry is {(demoModel.Geometry != null ? "not null" : "null")}");
+                    _demoViewport.MouseWheel += DemoViewport_MouseWheel;
+                    _demoViewport.MouseLeftButtonDown += DemoViewport_MouseLeftButtonDown;
+                    _demoViewport.MouseLeftButtonUp += DemoViewport_MouseLeftButtonUp;
+                    _demoViewport.MouseMove += DemoViewport_MouseMove;
+                    Debug.WriteLine("[CMM] Added mouse event handlers to viewport");
                     
-                    // Если геометрия не установлена через биндинг, установим её напрямую
-                    if (demoModel.Geometry == null && _viewModel.DemoModelGeometry != null)
+                    // Überprüfen aller untergeordneten Elemente des Viewport3D
+                    var modelVisuals = _demoViewport.Children.OfType<ModelVisual3D>().ToList();
+                    Debug.WriteLine($"[CMM] Viewport contains {modelVisuals.Count} ModelVisual3D elements");
+                    
+                    // Container des Modells finden
+                    var demoModelContainer = this.FindName("DemoModelContainer") as ModelVisual3D;
+                    Debug.WriteLine($"[CMM] DemoModelContainer: {(demoModelContainer != null ? "found" : "not found")}");
+                    
+                    // DemoModelGeometry Bindung überprüfen
+                    var demoModel = this.FindName("DemoModel") as GeometryModel3D;
+                    if (demoModel != null)
                     {
-                        Debug.WriteLine("[CMM] Setting DemoModel geometry directly");
-                        demoModel.Geometry = _viewModel.DemoModelGeometry;
-                    }
-                    else if (demoModel.Geometry == null)
-                    {
-                        Debug.WriteLine("[CMM] Creating fallback geometry directly");
+                        Debug.WriteLine($"[CMM] DemoModel: found, geometry is {(demoModel.Geometry != null ? "not null" : "null")}");
                         
-                        // Если геометрии нет в ViewModel, создадим простую геометрию напрямую
-                        var mesh = new MeshGeometry3D();
+                        // Wenn die Geometrie nicht über Binding gesetzt wurde, direkt setzen
+                        if (demoModel.Geometry == null && _viewModel.DemoModelGeometry != null)
+                        {
+                            Debug.WriteLine("[CMM] Setting DemoModel geometry directly");
+                            demoModel.Geometry = _viewModel.DemoModelGeometry;
+                        }
+                        else if (demoModel.Geometry == null)
+                        {
+                            Debug.WriteLine("[CMM] Creating fallback geometry directly");
+                            
+                            // Wenn keine Geometrie im ViewModel vorhanden ist, einfache Geometrie erstellen
+                            var mesh = new MeshGeometry3D();
                         
                         // Простой куб размером 60x30x15
                         mesh.Positions.Add(new Point3D(-30, -15, -7.5)); // 0
@@ -136,7 +135,7 @@ namespace CMMDemoApp.Views
                         mesh.TriangleIndices.Add(5); mesh.TriangleIndices.Add(4); mesh.TriangleIndices.Add(7);
                         mesh.TriangleIndices.Add(5); mesh.TriangleIndices.Add(7); mesh.TriangleIndices.Add(6);
                         
-                        // Устанавливаем геометрию напрямую
+                        // Geometrie direkt setzen
                         demoModel.Geometry = mesh;
                         Debug.WriteLine("[CMM] Fallback geometry created and set directly");
                     }
@@ -262,7 +261,7 @@ namespace CMMDemoApp.Views
         {
             Debug.WriteLine($"[CMM] Target updated: {e.Property.Name} on {e.TargetObject.GetType().Name}");
             
-            // Если обновлялась геометрия, проверим её
+            // Wenn die Geometrie aktualisiert wurde, überprüfen wir sie
             if (e.Property.Name == "Geometry" && e.TargetObject is GeometryModel3D)
             {
                 var model = e.TargetObject as GeometryModel3D;

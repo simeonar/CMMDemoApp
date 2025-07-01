@@ -107,7 +107,7 @@ namespace CMMDemoApp.ViewModels
             Debug.WriteLine($"[CMM] DemoModelGeometry is now {(DemoModelGeometry != null ? "not null" : "null")}");
             Debug.WriteLine($"[CMM] DemoModelGeometry has freeze state: {DemoModelGeometry?.IsFrozen ?? false}");
             
-            // Если DemoModelGeometry заморожен, создаем новую копию
+            // Wenn DemoModelGeometry eingefroren ist, erstellen wir eine neue Kopie
             if (DemoModelGeometry?.IsFrozen == true)
             {
                 Debug.WriteLine("[CMM] DemoModelGeometry is frozen, creating an unfrozen copy");

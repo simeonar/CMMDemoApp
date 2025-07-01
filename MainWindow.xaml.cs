@@ -197,15 +197,15 @@ namespace CMMDemoApp
 
         private void OpenDemoModelWindow_Click(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("[CMM] Кнопка Demo Model нажата, вызываем ShowDemoModel из ViewModel.");
+            Debug.WriteLine("[CMM] Demo Model Taste gedrückt, rufen ShowDemoModel aus ViewModel auf.");
             if (viewModel != null)
             {
                 viewModel.ShowDemoModel();
             }
             else
             {
-                Debug.WriteLine("[CMM] Ошибка: viewModel равен null");
-                MessageBox.Show("Ошибка: не удалось отобразить 3D модель", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                Debug.WriteLine("[CMM] Fehler: viewModel ist null");
+                MessageBox.Show("Fehler: 3D-Modell konnte nicht angezeigt werden", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

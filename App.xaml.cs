@@ -17,10 +17,10 @@ public partial class App : System.Windows.Application
     {
         base.OnStartup(e);
         
-        // Инициализация RenderOptions
+        // Initialisierung von RenderOptions
         RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.Default;
         
-        // Инициализация IoC-контейнера
+        // Initialisierung des IoC-Containers
         ConfigureServices();
     }
     
@@ -28,11 +28,11 @@ public partial class App : System.Windows.Application
     {
         var services = new ServiceCollection();
         
-        // Регистрация ViewModels
+        // Registrierung der ViewModels
         services.AddSingleton<MainWindowViewModel>();
         services.AddTransient<DemoModelViewModel>();
         
-        // Настройка IoC-контейнера
+        // Konfiguration des IoC-Containers
         Ioc.Default.ConfigureServices(services.BuildServiceProvider());
     }
 }
