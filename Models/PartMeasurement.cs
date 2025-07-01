@@ -33,7 +33,36 @@ namespace CMMDemoApp.Models
 
         public PartMeasurement()
         {
-            _points.CollectionChanged += (s, e) => UpdateOverallStatus();
+            _points.CollectionChanged += Points_CollectionChanged;
+        }
+
+        private void Points_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.OldItems != null)
+            {
+                foreach (MeasurementPoint point in e.OldItems)
+                {
+                    point.PropertyChanged -= Point_PropertyChanged;
+                }
+            }
+
+            if (e.NewItems != null)
+            {
+                foreach (MeasurementPoint point in e.NewItems)
+                {
+                    point.PropertyChanged += Point_PropertyChanged;
+                }
+            }
+
+            UpdateOverallStatus();
+        }
+
+        private void Point_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(MeasurementPoint.Status))
+            {
+                UpdateOverallStatus();
+            }
         }
 
         private void UpdateOverallStatus()
@@ -67,6 +96,16 @@ namespace CMMDemoApp.Models
             }
 
             OverallProgress = (completedCount + failedCount) * 100.0 / Points.Count;
+            OnPropertyChanged(nameof(CompletionPercentage));
+        }
+
+        public double CompletionPercentage
+        {
+            get
+            {
+                if (Points.Count == 0) return 0;
+                return (double)Points.Count(p => p.Status == MeasurementStatus.Completed) / Points.Count * 100;
+            }
         }
     }
 

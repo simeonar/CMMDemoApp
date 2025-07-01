@@ -58,18 +58,30 @@ namespace CMMDemoApp.Models
         [ObservableProperty]
         private bool _isInProgress;
 
-        public bool IsWithinTolerance
+        public double? Deviation
         {
             get
             {
                 if (!MeasuredX.HasValue || !MeasuredY.HasValue || !MeasuredZ.HasValue)
-                    return false;
+                    return null;
 
-                var deltaX = Math.Abs(NominalX - MeasuredX.Value);
-                var deltaY = Math.Abs(NominalY - MeasuredY.Value);
-                var deltaZ = Math.Abs(NominalZ - MeasuredZ.Value);
+                var dx = MeasuredX.Value - NominalX;
+                var dy = MeasuredY.Value - NominalY;
+                var dz = MeasuredZ.Value - NominalZ;
 
-                return deltaX <= ToleranceMax && deltaY <= ToleranceMax && deltaZ <= ToleranceMax;
+                return Math.Sqrt(dx * dx + dy * dy + dz * dz);
+            }
+        }
+
+        public string ToleranceRange => $"±{ToleranceMax:F3}";
+
+        public bool IsWithinTolerance
+        {
+            get
+            {
+                var dev = Deviation;
+                if (!dev.HasValue) return false;
+                return dev.Value >= ToleranceMin && dev.Value <= ToleranceMax;
             }
         }
     }

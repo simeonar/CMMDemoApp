@@ -247,5 +247,13 @@ namespace CMMDemoApp
                 }
             }
         }
+
+        private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (e.NewValue is MeasurementPoint point && viewModel != null)
+            {
+                viewModel.SelectedPoint = point;
+            }
+        }
     }
 }

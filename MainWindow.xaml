@@ -10,18 +10,26 @@
     <DockPanel>
         <!-- Statusbar -->
         <StatusBar DockPanel.Dock="Bottom" Background="{DynamicResource PanelBackgroundBrush}" Foreground="{DynamicResource TextPrimaryBrush}" Height="28" Padding="10,0">
-            <StatusBarItem>
+            <StatusBarItem MinWidth="200">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Status: "/>
                     <TextBlock Text="{Binding MeasurementStatus}" Margin="5,0,0,0"/>
                 </StackPanel>
             </StatusBarItem>
             <Separator/>
-            <StatusBarItem>
-                <StackPanel Orientation="Horizontal" MinWidth="200">
-                    <TextBlock Text="Fortschritt: "/>
-                    <ProgressBar Value="{Binding OverallProgress}" Width="100" Height="14" Margin="5,0,5,0"/>
-                    <TextBlock Text="{Binding OverallProgress, StringFormat={}{0:F1}%}"/>
+            <StatusBarItem MinWidth="150">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Punkt: "/>
+                    <ProgressBar Value="{Binding CurrentPointProgress}" Width="60" Height="14" Margin="5,0,5,0"/>
+                    <TextBlock Text="{Binding CurrentPointProgress, StringFormat={}{0:F0}%}" Width="35"/>
+                </StackPanel>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem MinWidth="150">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Gesamt: "/>
+                    <ProgressBar Value="{Binding OverallProgress}" Width="60" Height="14" Margin="5,0,5,0"/>
+                    <TextBlock Text="{Binding OverallProgress, StringFormat={}{0:F1}%}" Width="35"/>
                 </StackPanel>
             </StatusBarItem>
             <Separator/>
@@ -82,10 +90,53 @@
                               Style="{StaticResource ModernDataGrid}"
                               VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
-                            <DataGridTextColumn Header="Sollwert" Binding="{Binding Nominal}"/>
-                            <DataGridTextColumn Header="Istwert" Binding="{Binding Actual}"/>
-                            <DataGridTextColumn Header="Abweichung" Binding="{Binding Deviation}"/>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="80"/>
+                            <DataGridTemplateColumn Header="Status" Width="70">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Ellipse Width="12" Height="12" Margin="4,0"
+                                                     Fill="{Binding Status, Converter={StaticResource StatusToBrushConverter}}"/>
+                                            <TextBlock Text="{Binding Status}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Soll (X,Y,Z)" Binding="{Binding Nominal}" Width="120">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextAlignment" Value="Right"/>
+                                        <Setter Property="Margin" Value="0,0,8,0"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Ist (X,Y,Z)" Binding="{Binding Actual}" Width="120">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextAlignment" Value="Right"/>
+                                        <Setter Property="Margin" Value="0,0,8,0"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Abw." Binding="{Binding Deviation, StringFormat=F3}" Width="70">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextAlignment" Value="Right"/>
+                                        <Setter Property="Margin" Value="0,0,8,0"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Toleranz" 
+                                              Binding="{Binding ToleranceRange}" 
+                                              Width="*">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextAlignment" Value="Right"/>
+                                        <Setter Property="Margin" Value="0,0,8,0"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                     <!-- Horizontal GridSplitter between DataGrid and Details -->
@@ -109,19 +160,86 @@
                     
                     <!-- Measurement TreeView -->
                     <TreeView Grid.Row="1" ItemsSource="{Binding Parts}" Margin="10" 
-                              Style="{StaticResource ModernTreeView}">
+                             Style="{StaticResource ModernTreeView}"
+                             SelectedItemChanged="TreeView_SelectedItemChanged">
+                        <TreeView.Resources>
+                            <!-- Tooltip Template for Part -->
+                            <DataTemplate x:Key="PartTooltipTemplate">
+                                <StackPanel Margin="5">
+                                    <TextBlock Text="{Binding Name, StringFormat=Teil: {0}}" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding PartId, StringFormat=ID: {0}}"/>
+                                    <TextBlock Text="{Binding Points.Count, StringFormat=Anzahl der Messpunkte: {0}}"/>
+                                    <TextBlock Text="{Binding CompletionPercentage, StringFormat=Fortschritt: {0:F1}%}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                            
+                            <!-- Tooltip Template for Point -->
+                            <DataTemplate x:Key="PointTooltipTemplate">
+                                <StackPanel Margin="5">
+                                    <TextBlock Text="{Binding Name, StringFormat=Punkt: {0}}" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding Status, StringFormat=Status: {0}}"/>
+                                    <TextBlock>
+                                        <TextBlock.Text>
+                                            <MultiBinding StringFormat="Soll: ({0:F3}, {1:F3}, {2:F3})">
+                                                <Binding Path="NominalX"/>
+                                                <Binding Path="NominalY"/>
+                                                <Binding Path="NominalZ"/>
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding ToleranceRange, StringFormat=Toleranzbereich: {0}}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                            
+                            <!-- Compact Button Style -->
+                            <Style x:Key="CompactMeasureButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+                                <Setter Property="Padding" Value="6,2"/>
+                                <Setter Property="Margin" Value="4,0,0,0"/>
+                                <Setter Property="MinHeight" Value="20"/>
+                                <Setter Property="Height" Value="20"/>
+                                <Setter Property="Background" Value="{DynamicResource SecondaryBackgroundBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="FontSize" Value="11"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource AccentBackgroundBrush}"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TreeView.Resources>
+                        
                         <TreeView.ItemTemplate>
                             <HierarchicalDataTemplate ItemsSource="{Binding Points}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-                                    <TextBlock Text=" [" VerticalAlignment="Center" Margin="5,0,0,0"/>
-                                    <TextBlock Text="{Binding PartId}" VerticalAlignment="Center"/>
-                                    <TextBlock Text="]" VerticalAlignment="Center"/>
-                                </StackPanel>
+                                <Grid Margin="0,2">
+                                    <Grid.ToolTip>
+                                        <ToolTip Content="{Binding}" ContentTemplate="{StaticResource PartTooltipTemplate}"/>
+                                    </Grid.ToolTip>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="🔨" FontSize="16" Margin="0,0,8,0" Grid.Column="0"/>
+                                    <StackPanel Orientation="Horizontal" Grid.Column="1">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                        <TextBlock Text=" [" VerticalAlignment="Center" Margin="5,0,0,0" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                        <TextBlock Text="{Binding PartId}" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                        <TextBlock Text="]" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding CompletionPercentage, StringFormat={}{0:F0}%}"
+                                             Grid.Column="2" Margin="10,0,0,0" 
+                                             Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                </Grid>
+                                
                                 <HierarchicalDataTemplate.ItemTemplate>
                                     <DataTemplate>
                                         <Grid Margin="0,2">
+                                            <Grid.ToolTip>
+                                                <ToolTip Content="{Binding}" ContentTemplate="{StaticResource PointTooltipTemplate}"/>
+                                            </Grid.ToolTip>
                                             <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="Auto"/>
@@ -130,16 +248,26 @@
                                                 <Ellipse Width="12" Height="12" Margin="0,0,8,0"
                                                          Fill="{Binding Status, Converter={StaticResource StatusToBrushConverter}}"/>
                                                 <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                                <TextBlock Text=" - " Foreground="{DynamicResource TextSecondaryBrush}" Margin="4,0"/>
+                                                <TextBlock Text="{Binding Deviation, StringFormat=Abw: {0:F3}}" 
+                                                         Foreground="{DynamicResource TextSecondaryBrush}"/>
                                             </StackPanel>
-                                            <StackPanel Orientation="Horizontal" Grid.Column="1" Margin="10,0">
+                                            <TextBlock Grid.Column="1" Margin="10,0" Text="{Binding ToleranceRange}" 
+                                                     Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                            <StackPanel Orientation="Horizontal" Grid.Column="2" Margin="10,0">
                                                 <TextBlock Text="Status: " Foreground="{DynamicResource TextSecondaryBrush}"/>
-                                                <TextBlock Text="{Binding Status}"/>
+                                                <TextBlock Text="{Binding Status}" FontWeight="SemiBold"/>
                                             </StackPanel>
-                                            <Button Grid.Column="2" Content="Messen" 
+                                            <Button Grid.Column="3" 
                                                     Command="{Binding DataContext.MeasurePointCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
                                                     CommandParameter="{Binding}"
-                                                    Style="{StaticResource ModernButton}"
-                                                    Visibility="{Binding Status, Converter={StaticResource StatusToVisibilityConverter}}"/>
+                                                    Style="{StaticResource CompactMeasureButton}"
+                                                    Visibility="{Binding Status, Converter={StaticResource StatusToVisibilityConverter}}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="▶" FontSize="9" Margin="0,0,3,0" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="Messen" FontSize="11" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Button>
                                         </Grid>
                                     </DataTemplate>
                                 </HierarchicalDataTemplate.ItemTemplate>
