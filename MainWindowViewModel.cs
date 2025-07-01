@@ -52,7 +52,7 @@ public partial class MainWindowViewModel : ObservableObject
     private readonly IMeasurementSimulationService _simulationService;
 
     // Commands
-    public IRelayCommand LoadModelCommand { get; }
+    public IAsyncRelayCommand LoadModelCommand { get; }
     public IAsyncRelayCommand StartMeasurementCommand { get; }
     public IRelayCommand ExportReportCommand { get; }
     public IRelayCommand ShowDemoModelCommand { get; }
@@ -139,26 +139,46 @@ public partial class MainWindowViewModel : ObservableObject
     {
         try
         {
-            var jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestData", "input_data", "sample_part.json");
-            if (!File.Exists(jsonPath))
+            // Clear existing data
+            Parts.Clear();
+
+            // Use the project root directory directly
+            var projectDir = @"c:\Users\arshy\source\repos\CMMDemoApp";
+            var part1Path = Path.Combine(projectDir, "TestData", "input_data", "part001_expected.xml");
+            var part2Path = Path.Combine(projectDir, "TestData", "input_data", "part002_expected.xml");
+
+            Debug.WriteLine($"Loading demo data from:\n{part1Path}\n{part2Path}");
+
+            if (!File.Exists(part1Path) || !File.Exists(part2Path))
             {
-                Debug.WriteLine($"Demo data file not found at {jsonPath}");
-                return;
+                throw new FileNotFoundException("Demo data files not found. Expected files:\n" + part1Path + "\n" + part2Path);
             }
 
-            var jsonContent = await File.ReadAllTextAsync(jsonPath);
-            var demoData = JsonConvert.DeserializeObject<PartMeasurement>(jsonContent);
-            
-            if (demoData != null)
+            // Load both parts using the measurement service
+            var part1 = await _measurementService.LoadExpectedDataAsync(part1Path);
+            var part2 = await _measurementService.LoadExpectedDataAsync(part2Path);
+
+            if (part1 != null) Parts.Add(part1);
+            if (part2 != null) Parts.Add(part2);
+
+            // Force UI update
+            OnPropertyChanged(nameof(Parts));
+
+            // Expand the first part if we have any
+            if (Parts.Count > 0)
             {
-                Parts.Add(demoData);
-                OnPropertyChanged(nameof(Parts));
+                Parts[0].IsExpanded = true;
             }
+
+            Debug.WriteLine($"Successfully loaded {Parts.Count} parts with {Parts.Sum(p => p.Points.Count)} total points");
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Error loading demo data: {ex.Message}");
-            MessageBox.Show("Error loading demo data: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            var message = $"Error loading demo data: {ex.Message}";
+            Debug.WriteLine(message);
+            Debug.WriteLine(ex.StackTrace);
+            await Task.Delay(100); // Ensure UI is ready
+            MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -167,7 +187,7 @@ public partial class MainWindowViewModel : ObservableObject
         _measurementService = measurementService ?? throw new ArgumentNullException(nameof(measurementService));
         _simulationService = simulationService ?? throw new ArgumentNullException(nameof(simulationService));
         
-        LoadModelCommand = new RelayCommand(LoadModel);
+        LoadModelCommand = new AsyncRelayCommand(LoadModel);
         StartMeasurementCommand = new AsyncRelayCommand(StartMeasurementAsync);
         ExportReportCommand = new RelayCommand(ExportReport);
         ShowDemoModelCommand = new RelayCommand(ShowDemoModel);
@@ -183,14 +203,48 @@ public partial class MainWindowViewModel : ObservableObject
         };
         timer.Tick += (s, e) => Now = DateTime.Now.ToString("HH:mm");
         timer.Start();
-
-        // Load demo data
-        _ = LoadDemoDataAsync();
     }
 
-    private void LoadModel()
+    private async Task LoadModel()
     {
-        MessageBox.Show("STL-Modell laden (Demo)", "KMM-System", MessageBoxButton.OK, MessageBoxImage.Information);
+        try
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = "Load Model or Measurement Data",
+                Filter = "All Supported Files|*.xml;*.stl|XML Measurement Data|*.xml|STL Models|*.stl",
+                InitialDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestData", "input_data")
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                var extension = Path.GetExtension(dialog.FileName).ToLower();
+                
+                if (extension == ".xml")
+                {
+                    // Load measurement data
+                    var part = await _measurementService.LoadExpectedDataAsync(dialog.FileName);
+                    if (part != null)
+                    {
+                        Parts.Add(part);
+                        part.IsExpanded = true;
+                        Debug.WriteLine($"Successfully loaded part {part.Name} with {part.Points.Count} points");
+                    }
+                }
+                else if (extension == ".stl")
+                {
+                    MessageBox.Show("STL model loading will be implemented in the next version", 
+                        "Coming Soon", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            var message = $"Error loading file: {ex.Message}";
+            Debug.WriteLine(message);
+            Debug.WriteLine(ex.StackTrace);
+            MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private void StartMeasurement()

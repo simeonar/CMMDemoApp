@@ -26,10 +26,10 @@
             <!-- Linke Bedienleiste -->
             <Border Grid.Column="0" Margin="0,20,10,20" Style="{StaticResource ModernPanel}" Panel.ZIndex="2">
                 <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
-                    <Button Height="56" Margin="10 10 10 0" Command="{Binding LoadModelCommand}" ToolTip="STL-Modell laden" Style="{StaticResource ModernButton}">
+                    <Button Height="56" Margin="10 10 10 0" Command="{Binding LoadModelCommand}" ToolTip="STL-Modell oder XML-Messdaten laden" Style="{StaticResource ModernButton}">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <TextBlock Text="📂" FontSize="24" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="STL Laden" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+                            <TextBlock Text="Datei laden" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button Height="56" Margin="10 10 10 0" Command="{Binding StartMeasurementCommand}" ToolTip="Messung starten" Style="{StaticResource ModernButton}">
