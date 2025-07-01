@@ -1,0 +1,42 @@
+{
+    "partId": "DEMO-001",
+    "name": "Demo Cylinder Part",
+    "points": [
+        {
+            "name": "Top Surface Point 1",
+            "pointId": "TS-001",
+            "nominalX": 0.0,
+            "nominalY": 0.0,
+            "nominalZ": 100.0,
+            "toleranceMin": -0.1,
+            "toleranceMax": 0.1
+        },
+        {
+            "name": "Top Surface Point 2",
+            "pointId": "TS-002",
+            "nominalX": 50.0,
+            "nominalY": 0.0,
+            "nominalZ": 100.0,
+            "toleranceMin": -0.1,
+            "toleranceMax": 0.1
+        },
+        {
+            "name": "Side Surface Point 1",
+            "pointId": "SS-001",
+            "nominalX": 25.0,
+            "nominalY": 0.0,
+            "nominalZ": 50.0,
+            "toleranceMin": -0.05,
+            "toleranceMax": 0.05
+        },
+        {
+            "name": "Bottom Surface Point 1",
+            "pointId": "BS-001",
+            "nominalX": 0.0,
+            "nominalY": 0.0,
+            "nominalZ": 0.0,
+            "toleranceMin": -0.1,
+            "toleranceMax": 0.1
+        }
+    ]
+}

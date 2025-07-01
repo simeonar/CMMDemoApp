@@ -14,13 +14,7 @@ namespace CMMDemoApp.Models
         private string _name = string.Empty;
 
         [ObservableProperty]
-        private string _modelFilePath = string.Empty;
-
-        [ObservableProperty]
-        private string _expectedDataFilePath = string.Empty;
-
-        [ObservableProperty]
-        private string _actualDataFilePath = string.Empty;
+        private ObservableCollection<MeasurementPoint> _points = new();
 
         [ObservableProperty]
         private bool _isExpanded;
@@ -33,8 +27,6 @@ namespace CMMDemoApp.Models
 
         [ObservableProperty]
         private double _overallProgress;
-
-        public ObservableCollection<MeasurementPoint> Points { get; } = new();
 
         partial void OnPointsChanged(ObservableCollection<MeasurementPoint> value)
         {

@@ -34,6 +34,7 @@ namespace CMMDemoApp;
 public partial class MainWindowViewModel : ObservableObject
 {
     private readonly IMeasurementService _measurementService;
+    private readonly IMeasurementSimulationService _simulationService;
     
     public ObservableCollection<MeasurementResult> MeasurementResults { get; } = new();
 
@@ -50,22 +51,124 @@ public partial class MainWindowViewModel : ObservableObject
     private string now = DateTime.Now.ToString("HH:mm");
     
     [ObservableProperty]
-    private ObservableCollection<PartMeasurement> _parts = new();
+    private ObservableCollection<PartMeasurement> parts = new();
 
-    public IRelayCommand<MeasurementPoint> MeasurePointCommand { get; }
+    private MeasurementPoint? selectedPoint;
+    public MeasurementPoint? SelectedPoint
+    {
+        get => selectedPoint;
+        set
+        {
+            if (SetProperty(ref selectedPoint, value))
+            {
+                UpdateSelectedPointInfo();
+                UpdateMeasurementResults();
+            }
+        }
+    }
+
+    private void UpdateSelectedPointInfo()
+    {
+        if (selectedPoint == null)
+        {
+            SelectedPointInfo = "Wählen Sie einen Punkt für Details...";
+            return;
+        }
+
+        SelectedPointInfo = $"Punkt: {selectedPoint.Name}\n" +
+            $"Status: {selectedPoint.Status}\n" +
+            $"Erwartete Position: X={selectedPoint.ExpectedX:F3}, Y={selectedPoint.ExpectedY:F3}, Z={selectedPoint.ExpectedZ:F3}\n" +
+            $"Toleranz: ±{selectedPoint.Tolerance:F3}";
+    }
+
+    private void UpdateMeasurementResults()
+    {
+        MeasurementResults.Clear();
+        if (selectedPoint == null) return;
+
+        if (selectedPoint.MeasuredX.HasValue)
+        {
+            MeasurementResults.Add(new MeasurementResult 
+            { 
+                Name = "X-Position",
+                Nominal = selectedPoint.ExpectedX,
+                Actual = selectedPoint.MeasuredX.Value,
+                Deviation = selectedPoint.MeasuredX.Value - selectedPoint.ExpectedX
+            });
+        }
+        if (selectedPoint.MeasuredY.HasValue)
+        {
+            MeasurementResults.Add(new MeasurementResult 
+            { 
+                Name = "Y-Position",
+                Nominal = selectedPoint.ExpectedY,
+                Actual = selectedPoint.MeasuredY.Value,
+                Deviation = selectedPoint.MeasuredY.Value - selectedPoint.ExpectedY
+            });
+        }
+        if (selectedPoint.MeasuredZ.HasValue)
+        {
+            MeasurementResults.Add(new MeasurementResult 
+            { 
+                Name = "Z-Position",
+                Nominal = selectedPoint.ExpectedZ,
+                Actual = selectedPoint.MeasuredZ.Value,
+                Deviation = selectedPoint.MeasuredZ.Value - selectedPoint.ExpectedZ
+            });
+        }
+    }
+
+    // Removed as replaced by LoadDemoDataAsync
+
+        Parts.Add(demoPart);
+    }
+
+    private async Task LoadDemoDataAsync()
+    {
+        try
+        {
+            var jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestData", "input_data", "sample_part.json");
+            if (!File.Exists(jsonPath))
+            {
+                Debug.WriteLine($"Demo data file not found at {jsonPath}");
+                return;
+            }
+
+            var jsonContent = await File.ReadAllTextAsync(jsonPath);
+            var demoData = JsonConvert.DeserializeObject<PartMeasurement>(jsonContent);
+            
+            if (demoData != null)
+            {
+                Parts.Add(demoData);
+                OnPropertyChanged(nameof(Parts));
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error loading demo data: {ex.Message}");
+            MessageBox.Show("Error loading demo data: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    public IAsyncRelayCommand<MeasurementPoint> MeasurePointCommand { get; }
+    public IAsyncRelayCommand StartMeasurementCommand { get; }
+    public IRelayCommand LoadModelCommand { get; }
+    public IRelayCommand ExportReportCommand { get; }
+    public IRelayCommand ShowDemoModelCommand { get; }
     public IRelayCommand ExpandAllCommand { get; }
     public IRelayCommand CollapseAllCommand { get; }
 
-    public MainWindowViewModel(IMeasurementService measurementService)
+    public MainWindowViewModel(IMeasurementService measurementService, IMeasurementSimulationService simulationService)
     {
         _measurementService = measurementService;
+        _simulationService = simulationService;
         
         LoadModelCommand = new RelayCommand(LoadModel);
-        StartMeasurementCommand = new RelayCommand(StartMeasurement);
+        StartMeasurementCommand = new AsyncRelayCommand(StartMeasurementAsync);
         ExportReportCommand = new RelayCommand(ExportReport);
         ShowDemoModelCommand = new RelayCommand(ShowDemoModel);
         
-        MeasurePointCommand = new AsyncRelayCommand<MeasurementPoint>(MeasurePointAsync);
+        MeasurePointCommand = new AsyncRelayCommand<MeasurementPoint>(SimulateMeasurementAsync);
         ExpandAllCommand = new RelayCommand(ExpandAll);
         CollapseAllCommand = new RelayCommand(CollapseAll);
         
@@ -76,6 +179,9 @@ public partial class MainWindowViewModel : ObservableObject
         };
         timer.Tick += (s, e) => Now = DateTime.Now.ToString("HH:mm");
         timer.Start();
+
+        // Load demo data
+        _ = LoadDemoDataAsync();
     }
 
     private void LoadModel()
@@ -224,8 +330,43 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
-    public RelayCommand LoadModelCommand { get; }
-    public RelayCommand StartMeasurementCommand { get; }
-    public RelayCommand ExportReportCommand { get; }
-    public RelayCommand ShowDemoModelCommand { get; }
+    // Commands moved to the top of the file
+
+    private async Task StartMeasurementAsync()
+    {
+        foreach (var part in Parts)
+        {
+            foreach (var point in part.Points)
+            {
+                if (point.Status == MeasurementStatus.NotStarted || point.Status == MeasurementStatus.Failed)
+                {
+                    await SimulateMeasurementAsync(point);
+                    // Add a small delay between measurements to make it more realistic
+                    await Task.Delay(500);
+                }
+            }
+        }
+        
+        MessageBox.Show("Measurement process completed!", "CMM System", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
+    private async Task SimulateMeasurementAsync(MeasurementPoint? point)
+    {
+        if (point == null) return;
+
+        try
+        {
+            point.Status = MeasurementStatus.InProgress;
+            var result = await _simulationService.SimulateMeasurementAsync(point);
+            MeasurementResults.Add(result);
+            point.Status = result.IsWithinTolerance ? MeasurementStatus.Completed : MeasurementStatus.Failed;
+            SelectedPointInfo = $"Point: {point.Name}\nNominal: {result.Nominal}\nActual: {result.Actual}\nDeviation: {result.Deviation}\nStatus: {result.Status}";
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error during measurement simulation: {ex.Message}");
+            point.Status = MeasurementStatus.Failed;
+            MessageBox.Show("Error during measurement: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
 }

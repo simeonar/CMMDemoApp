@@ -31,6 +31,7 @@ public partial class App : System.Windows.Application
         
         // Registrierung der Services
         services.AddSingleton<IMeasurementService, MeasurementService>();
+        services.AddSingleton<IMeasurementSimulationService, MeasurementSimulationService>();
         
         // Registrierung der ViewModels
         services.AddSingleton<MainWindowViewModel>();

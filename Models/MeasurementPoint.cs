@@ -14,19 +14,19 @@ namespace CMMDemoApp.Models
     public partial class MeasurementPoint : ObservableObject
     {
         [ObservableProperty]
-        private string _id = string.Empty;
+        private string _pointId = string.Empty;
 
         [ObservableProperty]
         private string _name = string.Empty;
 
         [ObservableProperty]
-        private double _expectedX;
+        private double _nominalX;
 
         [ObservableProperty]
-        private double _expectedY;
+        private double _nominalY;
 
         [ObservableProperty]
-        private double _expectedZ;
+        private double _nominalZ;
 
         [ObservableProperty]
         private double? _measuredX;
@@ -38,7 +38,10 @@ namespace CMMDemoApp.Models
         private double? _measuredZ;
 
         [ObservableProperty]
-        private double _tolerance = 0.01;
+        private double _toleranceMin = -0.1;
+
+        [ObservableProperty]
+        private double _toleranceMax = 0.1;
 
         [ObservableProperty]
         private MeasurementStatus _status = MeasurementStatus.NotStarted;

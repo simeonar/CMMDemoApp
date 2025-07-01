@@ -1,12 +1,26 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+
 namespace CMMDemoApp.Models;
 
-public class MeasurementResult
+public partial class MeasurementResult : ObservableObject
 {
-    public string Name { get; set; } = string.Empty;
-    public double Nominal { get; set; }
-    public double Actual { get; set; }
-    public double X { get; set; }
-    public double Y { get; set; }
-    public double Z { get; set; }
-    public double Deviation => Actual - Nominal;
+    [ObservableProperty]
+    private string _pointId = string.Empty;
+
+    [ObservableProperty]
+    private string _name = string.Empty;
+
+    [ObservableProperty]
+    private string _nominal = string.Empty;
+
+    [ObservableProperty]
+    private string _actual = string.Empty;
+
+    [ObservableProperty]
+    private string _deviation = string.Empty;
+
+    [ObservableProperty]
+    private string _status = string.Empty;
+
+    public bool IsWithinTolerance => Status == "OK";
 }
