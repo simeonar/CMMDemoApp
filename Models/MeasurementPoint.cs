@@ -65,11 +65,11 @@ namespace CMMDemoApp.Models
                 if (!MeasuredX.HasValue || !MeasuredY.HasValue || !MeasuredZ.HasValue)
                     return false;
 
-                var deltaX = Math.Abs(ExpectedX - MeasuredX.Value);
-                var deltaY = Math.Abs(ExpectedY - MeasuredY.Value);
-                var deltaZ = Math.Abs(ExpectedZ - MeasuredZ.Value);
+                var deltaX = Math.Abs(NominalX - MeasuredX.Value);
+                var deltaY = Math.Abs(NominalY - MeasuredY.Value);
+                var deltaZ = Math.Abs(NominalZ - MeasuredZ.Value);
 
-                return deltaX <= Tolerance && deltaY <= Tolerance && deltaZ <= Tolerance;
+                return deltaX <= ToleranceMax && deltaY <= ToleranceMax && deltaZ <= ToleranceMax;
             }
         }
     }

@@ -16,9 +16,14 @@ public class CMMSettings
     public double ProbingForce { get; set; } = 0.1;
     
     /// <summary>
-    /// Toleranz für Messungen in mm
+    /// Minimale Toleranz für Messungen in mm
     /// </summary>
-    public double MeasurementTolerance { get; set; } = 0.01;
+    public double ToleranceMin { get; set; } = -0.01;
+    
+    /// <summary>
+    /// Maximale Toleranz für Messungen in mm
+    /// </summary>
+    public double ToleranceMax { get; set; } = 0.01;
     
     /// <summary>
     /// Automatische Kalibrierung aktiviert

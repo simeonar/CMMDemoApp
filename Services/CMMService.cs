@@ -66,13 +66,18 @@ public class CMMService : ICMMService
         
         // Simulation einer realen Messung mit kleinem Fehler
         var measurementError = (_random.NextDouble() - 0.5) * 0.02; // ±10 Mikrometer
-        var actualValue = targetPosition.Length() + measurementError;
+        var nominalValue = targetPosition.Length();
+        var actualValue = nominalValue + measurementError;
+        var deviation = actualValue - nominalValue;
         
         return new MeasurementResult
         {
             Name = pointName,
-            Nominal = targetPosition.Length(),
-            Actual = actualValue
+            PointId = pointName,  // Using pointName as PointId for now
+            Nominal = nominalValue.ToString("F3"),
+            Actual = actualValue.ToString("F3"),
+            Deviation = deviation.ToString("F3"),
+            Status = Math.Abs(deviation) <= 0.01 ? "OK" : "NOK"  // Using 0.01 as default tolerance
         };
     }
 

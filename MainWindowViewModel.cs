@@ -33,11 +33,6 @@ namespace CMMDemoApp;
 /// </summary>
 public partial class MainWindowViewModel : ObservableObject
 {
-    private readonly IMeasurementService _measurementService;
-    private readonly IMeasurementSimulationService _simulationService;
-    
-    public ObservableCollection<MeasurementResult> MeasurementResults { get; } = new();
-
     [ObservableProperty]
     private string selectedPointInfo = "Wählen Sie einen Punkt für Details...";
 
@@ -48,10 +43,24 @@ public partial class MainWindowViewModel : ObservableObject
     private Model3DGroup? measurementPointsModel;
 
     [ObservableProperty]
-    private string now = DateTime.Now.ToString("HH:mm");
+    private string _now = DateTime.Now.ToString("HH:mm");
     
     [ObservableProperty]
-    private ObservableCollection<PartMeasurement> parts = new();
+    private ObservableCollection<PartMeasurement> _parts = new();
+
+    private readonly IMeasurementService _measurementService;
+    private readonly IMeasurementSimulationService _simulationService;
+
+    // Commands
+    public IRelayCommand LoadModelCommand { get; }
+    public IAsyncRelayCommand StartMeasurementCommand { get; }
+    public IRelayCommand ExportReportCommand { get; }
+    public IRelayCommand ShowDemoModelCommand { get; }
+    public IAsyncRelayCommand<MeasurementPoint> MeasurePointCommand { get; }
+    public IRelayCommand ExpandAllCommand { get; }
+    public IRelayCommand CollapseAllCommand { get; }
+
+    public ObservableCollection<MeasurementResult> MeasurementResults { get; } = new();
 
     private MeasurementPoint? selectedPoint;
     public MeasurementPoint? SelectedPoint
@@ -77,8 +86,8 @@ public partial class MainWindowViewModel : ObservableObject
 
         SelectedPointInfo = $"Punkt: {selectedPoint.Name}\n" +
             $"Status: {selectedPoint.Status}\n" +
-            $"Erwartete Position: X={selectedPoint.ExpectedX:F3}, Y={selectedPoint.ExpectedY:F3}, Z={selectedPoint.ExpectedZ:F3}\n" +
-            $"Toleranz: ±{selectedPoint.Tolerance:F3}";
+            $"Nominal Position: X={selectedPoint.NominalX:F3}, Y={selectedPoint.NominalY:F3}, Z={selectedPoint.NominalZ:F3}\n" +
+            $"Tolerance: {selectedPoint.ToleranceMin:F3} to {selectedPoint.ToleranceMax:F3}";
     }
 
     private void UpdateMeasurementResults()
@@ -91,9 +100,11 @@ public partial class MainWindowViewModel : ObservableObject
             MeasurementResults.Add(new MeasurementResult 
             { 
                 Name = "X-Position",
-                Nominal = selectedPoint.ExpectedX,
-                Actual = selectedPoint.MeasuredX.Value,
-                Deviation = selectedPoint.MeasuredX.Value - selectedPoint.ExpectedX
+                Nominal = selectedPoint.NominalX.ToString("F3"),
+                Actual = selectedPoint.MeasuredX?.ToString("F3") ?? "Not measured",
+                Deviation = selectedPoint.MeasuredX.HasValue 
+                    ? (selectedPoint.MeasuredX.Value - selectedPoint.NominalX).ToString("F3")
+                    : "N/A"
             });
         }
         if (selectedPoint.MeasuredY.HasValue)
@@ -101,9 +112,11 @@ public partial class MainWindowViewModel : ObservableObject
             MeasurementResults.Add(new MeasurementResult 
             { 
                 Name = "Y-Position",
-                Nominal = selectedPoint.ExpectedY,
-                Actual = selectedPoint.MeasuredY.Value,
-                Deviation = selectedPoint.MeasuredY.Value - selectedPoint.ExpectedY
+                Nominal = selectedPoint.NominalY.ToString("F3"),
+                Actual = selectedPoint.MeasuredY?.ToString("F3") ?? "Not measured",
+                Deviation = selectedPoint.MeasuredY.HasValue 
+                    ? (selectedPoint.MeasuredY.Value - selectedPoint.NominalY).ToString("F3")
+                    : "N/A"
             });
         }
         if (selectedPoint.MeasuredZ.HasValue)
@@ -111,17 +124,16 @@ public partial class MainWindowViewModel : ObservableObject
             MeasurementResults.Add(new MeasurementResult 
             { 
                 Name = "Z-Position",
-                Nominal = selectedPoint.ExpectedZ,
-                Actual = selectedPoint.MeasuredZ.Value,
-                Deviation = selectedPoint.MeasuredZ.Value - selectedPoint.ExpectedZ
+                Nominal = selectedPoint.NominalZ.ToString("F3"),
+                Actual = selectedPoint.MeasuredZ?.ToString("F3") ?? "Not measured",
+                Deviation = selectedPoint.MeasuredZ.HasValue 
+                    ? (selectedPoint.MeasuredZ.Value - selectedPoint.NominalZ).ToString("F3")
+                    : "N/A"
             });
         }
     }
 
     // Removed as replaced by LoadDemoDataAsync
-
-        Parts.Add(demoPart);
-    }
 
     private async Task LoadDemoDataAsync()
     {
@@ -150,18 +162,10 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
-    public IAsyncRelayCommand<MeasurementPoint> MeasurePointCommand { get; }
-    public IAsyncRelayCommand StartMeasurementCommand { get; }
-    public IRelayCommand LoadModelCommand { get; }
-    public IRelayCommand ExportReportCommand { get; }
-    public IRelayCommand ShowDemoModelCommand { get; }
-    public IRelayCommand ExpandAllCommand { get; }
-    public IRelayCommand CollapseAllCommand { get; }
-
     public MainWindowViewModel(IMeasurementService measurementService, IMeasurementSimulationService simulationService)
     {
-        _measurementService = measurementService;
-        _simulationService = simulationService;
+        _measurementService = measurementService ?? throw new ArgumentNullException(nameof(measurementService));
+        _simulationService = simulationService ?? throw new ArgumentNullException(nameof(simulationService));
         
         LoadModelCommand = new RelayCommand(LoadModel);
         StartMeasurementCommand = new AsyncRelayCommand(StartMeasurementAsync);
@@ -281,21 +285,7 @@ public partial class MainWindowViewModel : ObservableObject
 
     private void AddSampleData()
     {
-        // Messpunkte, die auf die Würfeloberflächen projiziert werden (60x30x15)
-        // Würfel: von -30 bis +30 auf X, von -15 bis +15 auf Y, von -7.5 bis +7.5 auf Z
-        
-        // Punkte für obere Oberfläche
-        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 1", X = -20, Y = 20, Z = 0, Nominal = 25.0, Actual = 25.0 });
-        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 2", X = 0, Y = 20, Z = 0, Nominal = 25.0, Actual = 24.8 });
-        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 3", X = 20, Y = 20, Z = 0, Nominal = 25.0, Actual = 25.2 });
-        
-        // Punkte für vordere Oberfläche
-        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 4", X = -15, Y = 0, Z = -15, Nominal = 30.0, Actual = 29.9 });
-        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 5", X = 15, Y = 0, Z = -15, Nominal = 30.0, Actual = 30.1 });
-        
-        // Punkte für seitliche Oberflächen
-        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 6", X = 40, Y = 0, Z = 0, Nominal = 15.0, Actual = 15.3 }); // Roter Punkt (Abweichung > 0.15)
-        MeasurementResults.Add(new MeasurementResult { Name = "Punkt 7", X = -40, Y = -5, Z = 0, Nominal = 15.0, Actual = 14.9 });
+        // Results will be added during measurement simulation
     }
 
     public void ClearMeasurementPoints()
@@ -309,7 +299,7 @@ public partial class MainWindowViewModel : ObservableObject
         var material = new DiffuseMaterial(new SolidColorBrush(Colors.Red));
 
         // Example: Create a sphere at the point's coordinates
-        var transform = new TranslateTransform3D(point.ExpectedX, point.ExpectedY, point.ExpectedZ);
+        var transform = new TranslateTransform3D(point.NominalX, point.NominalY, point.NominalZ);
         var geometryModel = new GeometryModel3D(sphere, material)
         {
             Transform = transform

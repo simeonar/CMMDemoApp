@@ -43,14 +43,16 @@ namespace CMMDemoApp.Services
                 {
                     foreach (var pointElement in pointsElement.Elements("Point"))
                     {
+                        var tolerance = double.TryParse(pointElement.Element("Tolerance")?.Value, out var t) ? t : 0.01;
                         var point = new MeasurementPoint
                         {
-                            Id = pointElement.Attribute("id")?.Value ?? string.Empty,
+                            PointId = pointElement.Attribute("id")?.Value ?? string.Empty,
                             Name = pointElement.Attribute("name")?.Value ?? string.Empty,
-                            ExpectedX = double.TryParse(pointElement.Element("X")?.Value, out var x) ? x : 0,
-                            ExpectedY = double.TryParse(pointElement.Element("Y")?.Value, out var y) ? y : 0,
-                            ExpectedZ = double.TryParse(pointElement.Element("Z")?.Value, out var z) ? z : 0,
-                            Tolerance = double.TryParse(pointElement.Element("Tolerance")?.Value, out var t) ? t : 0
+                            NominalX = double.TryParse(pointElement.Element("X")?.Value, out var x) ? x : 0,
+                            NominalY = double.TryParse(pointElement.Element("Y")?.Value, out var y) ? y : 0,
+                            NominalZ = double.TryParse(pointElement.Element("Z")?.Value, out var z) ? z : 0,
+                            ToleranceMin = -tolerance,
+                            ToleranceMax = tolerance
                         };
                         measurement.Points.Add(point);
                     }
@@ -75,19 +77,19 @@ namespace CMMDemoApp.Services
                         new XElement("Points",
                             measurement.Points.Select(point =>
                                 new XElement("Point",
-                                    new XAttribute("id", point.Id),
+                                    new XAttribute("id", point.PointId),
                                     new XAttribute("name", point.Name),
-                                    new XElement("X", point.ExpectedX),
-                                    new XElement("Y", point.ExpectedY),
-                                    new XElement("Z", point.ExpectedZ),
-                                    new XElement("Tolerance", point.Tolerance)
+                                    new XElement("X", point.NominalX),
+                                    new XElement("Y", point.NominalY),
+                                    new XElement("Z", point.NominalZ),
+                                    new XElement("Tolerance", point.ToleranceMax) // Save the positive tolerance value
                                 )
                             )
                         )
                     )
                 );
 
-                using (var writer = XmlWriter.Create(filePath, new XmlWriterSettings { Async = true }))
+                using (var writer = XmlWriter.Create(filePath, new XmlWriterSettings { Async = true, Indent = true }))
                 {
                     doc.Save(writer);
                     await writer.FlushAsync();
@@ -109,11 +111,12 @@ namespace CMMDemoApp.Services
             await Task.Delay(1000); // Simulate measurement time
             
             // Generate measured values with some random deviation
-            double deviation = point.Tolerance * (_random.NextDouble() * 2 - 1); // Random deviation within tolerance range
+            double maxDeviation = point.ToleranceMax;
+            double deviation = maxDeviation * (_random.NextDouble() * 2 - 1); // Random deviation within tolerance range
             
-            point.MeasuredX = point.ExpectedX + deviation;
-            point.MeasuredY = point.ExpectedY + deviation;
-            point.MeasuredZ = point.ExpectedZ + deviation;
+            point.MeasuredX = point.NominalX + deviation;
+            point.MeasuredY = point.NominalY + deviation;
+            point.MeasuredZ = point.NominalZ + deviation;
             
             point.Status = point.IsWithinTolerance ? MeasurementStatus.Completed : MeasurementStatus.Failed;
         }

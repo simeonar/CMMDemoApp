@@ -119,16 +119,19 @@ public class FileService : IFileService
     {
         try
         {
-            var csv = new System.Text.StringBuilder();
-            csv.AppendLine("Name,Sollwert,Istwert,Abweichung,Status");
-            
+            var lines = new List<string>
+            {
+                // Header
+                "Point ID,Name,Nominal,Actual,Deviation,Status"
+            };
+
+            // Add measurement results
             foreach (var result in results)
             {
-                var status = Math.Abs(result.Deviation) <= 0.01 ? "OK" : "Außerhalb Toleranz";
-                csv.AppendLine($"{result.Name},{result.Nominal:F3},{result.Actual:F3},{result.Deviation:F3},{status}");
+                lines.Add($"{result.PointId},{result.Name},{result.Nominal},{result.Actual},{result.Deviation},{result.Status}");
             }
-            
-            await System.IO.File.WriteAllTextAsync(filePath, csv.ToString());
+
+            await System.IO.File.WriteAllLinesAsync(filePath, lines);
             return true;
         }
         catch

@@ -27,8 +27,10 @@
                         </GroupBox>
                         <GroupBox Header="Qualitätseinstellungen" Margin="0,0,0,15" Background="{DynamicResource PanelBackgroundBrush}">
                             <StackPanel Margin="10">
-                                <Label Content="Messtoleranz (mm):"/>
-                                <TextBox Text="{Binding Settings.MeasurementTolerance}" Margin="0,0,0,10" ToolTip="Erlaubte Toleranz"/>
+                                <Label Content="Min. Toleranz (mm):"/>
+                                <TextBox Text="{Binding Settings.ToleranceMin}" Margin="0,0,0,10" ToolTip="Minimale erlaubte Abweichung"/>
+                                <Label Content="Max. Toleranz (mm):"/>
+                                <TextBox Text="{Binding Settings.ToleranceMax}" Margin="0,0,0,10" ToolTip="Maximale erlaubte Abweichung"/>
                                 <Label Content="Anzahl Mittelwertpunkte:"/>
                                 <TextBox Text="{Binding Settings.AveragingPoints}" Margin="0,0,0,10" ToolTip="Wie viele Punkte werden gemittelt?"/>
                                 <CheckBox Content="Automatische Kalibrierung" 

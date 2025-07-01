@@ -13,8 +13,11 @@ namespace CMMDemoApp.Models
         [ObservableProperty]
         private string _name = string.Empty;
 
-        [ObservableProperty]
-        private ObservableCollection<MeasurementPoint> _points = new();
+        private readonly ObservableCollection<MeasurementPoint> _points = new();
+        public ObservableCollection<MeasurementPoint> Points
+        {
+            get => _points;
+        }
 
         [ObservableProperty]
         private bool _isExpanded;
@@ -28,9 +31,9 @@ namespace CMMDemoApp.Models
         [ObservableProperty]
         private double _overallProgress;
 
-        partial void OnPointsChanged(ObservableCollection<MeasurementPoint> value)
+        public PartMeasurement()
         {
-            UpdateOverallStatus();
+            _points.CollectionChanged += (s, e) => UpdateOverallStatus();
         }
 
         private void UpdateOverallStatus()
