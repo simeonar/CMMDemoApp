@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Part3DModel>
+    <PartId>PART002</PartId>
+    <Name>Engine Connecting Rod</Name>
+    <Description>Engine connecting rod measurement points</Description>
+    <Geometry>
+        <Mesh>
+            <!-- Simplified mesh data for connecting rod -->
+            <Vertices>
+                <Vertex x="-20" y="-40" z="-5" />
+                <Vertex x="20" y="-40" z="-5" />
+                <Vertex x="20" y="40" z="-5" />
+                <Vertex x="-20" y="40" z="-5" />
+                <Vertex x="-20" y="-40" z="5" />
+                <Vertex x="20" y="-40" z="5" />
+                <Vertex x="20" y="40" z="5" />
+                <Vertex x="-20" y="40" z="5" />
+            </Vertices>
+            <Faces>
+                <!-- Basic faces -->
+                <Face v1="0" v2="1" v3="2" />
+                <Face v1="0" v2="2" v3="3" />
+                <Face v1="5" v2="4" v3="7" />
+                <Face v1="5" v2="7" v3="6" />
+            </Faces>
+        </Mesh>
+    </Geometry>
+</Part3DModel>

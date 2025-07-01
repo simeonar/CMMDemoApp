@@ -5,6 +5,7 @@ using System.Windows.Media;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using CMMDemoApp.ViewModels;
+using CMMDemoApp.Services;
 
 namespace CMMDemoApp;
 
@@ -27,6 +28,9 @@ public partial class App : System.Windows.Application
     private void ConfigureServices()
     {
         var services = new ServiceCollection();
+        
+        // Registrierung der Services
+        services.AddSingleton<IMeasurementService, MeasurementService>();
         
         // Registrierung der ViewModels
         services.AddSingleton<MainWindowViewModel>();

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ExpectedMeasurements>
+    <PartId>PART002</PartId>
+    <Name>Engine Connecting Rod</Name>
+    <Points>
+        <Point id="P1" name="Small End Bore Center">
+            <X>0.000</X>
+            <Y>35.000</Y>
+            <Z>0.000</Z>
+            <Tolerance>0.005</Tolerance>
+        </Point>
+        <Point id="P2" name="Big End Bore Center">
+            <X>0.000</X>
+            <Y>-35.000</Y>
+            <Z>0.000</Z>
+            <Tolerance>0.005</Tolerance>
+        </Point>
+        <Point id="P3" name="Small End Surface 1">
+            <X>15.000</X>
+            <Y>35.000</Y>
+            <Z>5.000</Z>
+            <Tolerance>0.02</Tolerance>
+        </Point>
+        <Point id="P4" name="Small End Surface 2">
+            <X>-15.000</X>
+            <Y>35.000</Y>
+            <Z>5.000</Z>
+            <Tolerance>0.02</Tolerance>
+        </Point>
+        <Point id="P5" name="Big End Surface 1">
+            <X>18.000</X>
+            <Y>-35.000</Y>
+            <Z>5.000</Z>
+            <Tolerance>0.02</Tolerance>
+        </Point>
+        <Point id="P6" name="Big End Surface 2">
+            <X>-18.000</X>
+            <Y>-35.000</Y>
+            <Z>5.000</Z>
+            <Tolerance>0.02</Tolerance>
+        </Point>
+        <Point id="P7" name="Rod Body Center 1">
+            <X>0.000</X>
+            <Y>0.000</Y>
+            <Z>0.000</Z>
+            <Tolerance>0.01</Tolerance>
+        </Point>
+        <Point id="P8" name="Rod Body Surface 1">
+            <X>10.000</X>
+            <Y>0.000</Y>
+            <Z>5.000</Z>
+            <Tolerance>0.02</Tolerance>
+        </Point>
+        <Point id="P9" name="Rod Body Surface 2">
+            <X>-10.000</X>
+            <Y>0.000</Y>
+            <Z>5.000</Z>
+            <Tolerance>0.02</Tolerance>
+        </Point>
+        <Point id="P10" name="Rod Length Reference">
+            <X>0.000</X>
+            <Y>70.000</Y>
+            <Z>0.000</Z>
+            <Tolerance>0.01</Tolerance>
+        </Point>
+    </Points>
+</ExpectedMeasurements>

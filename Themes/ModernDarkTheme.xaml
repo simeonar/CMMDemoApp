@@ -212,4 +212,22 @@
         <Setter Property="Height" Value="8"/>
     </Style>
 
+    <!-- TreeView Style -->
+    <Style x:Key="ModernTreeView" TargetType="TreeView">
+        <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource PanelBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="10"/>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="TreeViewItem">
+                    <Setter Property="Margin" Value="5"/>
+                    <Setter Property="Padding" Value="5"/>
+                    <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}"/>
+                    <Setter Property="BorderBrush" Value="{StaticResource PanelBorderBrush}"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Part3DModel>
+    <PartId>PART001</PartId>
+    <Name>Sample Cylinder Head</Name>
+    <Description>Engine cylinder head measurement points</Description>
+    <Geometry>
+        <Mesh>
+            <!-- Simplified mesh data for cylinder head -->
+            <Vertices>
+                <Vertex x="-30" y="-15" z="-7.5" />
+                <Vertex x="30" y="-15" z="-7.5" />
+                <Vertex x="30" y="15" z="-7.5" />
+                <Vertex x="-30" y="15" z="-7.5" />
+                <Vertex x="-30" y="-15" z="7.5" />
+                <Vertex x="30" y="-15" z="7.5" />
+                <Vertex x="30" y="15" z="7.5" />
+                <Vertex x="-30" y="15" z="7.5" />
+            </Vertices>
+            <Faces>
+                <!-- Basic cube faces -->
+                <Face v1="0" v2="1" v3="2" />
+                <Face v1="0" v2="2" v3="3" />
+                <Face v1="5" v2="4" v3="7" />
+                <Face v1="5" v2="7" v3="6" />
+            </Faces>
+        </Mesh>
+    </Geometry>
+</Part3DModel>

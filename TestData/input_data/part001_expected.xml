@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ExpectedMeasurements>
+    <PartId>PART001</PartId>
+    <Name>Sample Cylinder Head</Name>
+    <Points>
+        <Point id="P1" name="Cylinder1_Top">
+            <X>10.000</X>
+            <Y>5.000</Y>
+            <Z>7.500</Z>
+            <Tolerance>0.01</Tolerance>
+        </Point>
+        <Point id="P2" name="Cylinder1_Bottom">
+            <X>10.000</X>
+            <Y>5.000</Y>
+            <Z>-7.500</Z>
+            <Tolerance>0.01</Tolerance>
+        </Point>
+        <Point id="P3" name="Cylinder2_Top">
+            <X>-10.000</X>
+            <Y>5.000</Y>
+            <Z>7.500</Z>
+            <Tolerance>0.01</Tolerance>
+        </Point>
+        <Point id="P4" name="Cylinder2_Bottom">
+            <X>-10.000</X>
+            <Y>5.000</Y>
+            <Z>-7.500</Z>
+            <Tolerance>0.01</Tolerance>
+        </Point>
+        <Point id="P5" name="Surface_Front_Right">
+            <X>25.000</X>
+            <Y>10.000</Y>
+            <Z>0.000</Z>
+            <Tolerance>0.02</Tolerance>
+        </Point>
+        <Point id="P6" name="Surface_Front_Left">
+            <X>-25.000</X>
+            <Y>10.000</Y>
+            <Z>0.000</Z>
+            <Tolerance>0.02</Tolerance>
+        </Point>
+        <Point id="P7" name="Surface_Back_Right">
+            <X>25.000</X>
+            <Y>-10.000</Y>
+            <Z>0.000</Z>
+            <Tolerance>0.02</Tolerance>
+        </Point>
+        <Point id="P8" name="Surface_Back_Left">
+            <X>-25.000</X>
+            <Y>-10.000</Y>
+            <Z>0.000</Z>
+            <Tolerance>0.02</Tolerance>
+        </Point>
+        <Point id="P9" name="Edge_Top_Right">
+            <X>30.000</X>
+            <Y>15.000</Y>
+            <Z>7.500</Z>
+            <Tolerance>0.015</Tolerance>
+        </Point>
+        <Point id="P10" name="Edge_Top_Left">
+            <X>-30.000</X>
+            <Y>15.000</Y>
+            <Z>7.500</Z>
+            <Tolerance>0.015</Tolerance>
+        </Point>
+    </Points>
+</ExpectedMeasurements>

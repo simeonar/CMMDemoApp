@@ -1,0 +1,253 @@
+using System;
+using CommunityToolkit.Mvvm.ComponentModel;
+
+namespace CMMDemoApp.Models
+{
+    public partial class MeasurementPoint : ObservableObject
+    {
+        private string _id = string.Empty;
+        private string _name = string.Empty;
+        private double _expectedX;
+        private double _expectedY;
+        private double _expectedZ;
+        private double? _measuredX;
+        private double? _measuredY;
+        private double? _measuredZ;
+        private double _tolerance = 0.01;
+        private MeasurementStatus _status = MeasurementStatus.NotStarted;
+        private bool _isExpanded;
+        private bool _isSelected;
+        private double _measurementProgress;
+        private bool _isInProgress;
+
+        public string Id 
+        { 
+            get => _pointId;
+            set
+            {
+                if (_pointId != value)
+                {
+                    _pointId = value;
+                    OnPropertyChanged(nameof(Id));
+                }
+            }
+        }
+
+        public string Name
+        {
+            get => _pointName;
+            set
+            {
+                if (_pointName != value)
+                {
+                    _pointName = value;
+                    OnPropertyChanged(nameof(Name));
+                }
+            }
+        }
+
+        public double ExpectedX
+        {
+            get => _expectedX;
+            set
+            {
+                if (_expectedX != value)
+                {
+                    _expectedX = value;
+                    OnPropertyChanged(nameof(ExpectedX));
+                }
+            }
+        }
+
+        public double ExpectedY
+        {
+            get => _expectedY;
+            set
+            {
+                if (_expectedY != value)
+                {
+                    _expectedY = value;
+                    OnPropertyChanged(nameof(ExpectedY));
+                }
+            }
+        }
+
+        public double ExpectedZ
+        {
+            get => _expectedZ;
+            set
+            {
+                if (_expectedZ != value)
+                {
+                    _expectedZ = value;
+                    OnPropertyChanged(nameof(ExpectedZ));
+                }
+            }
+        }
+
+        public double ActualX
+        {
+            get => _actualX;
+            set
+            {
+                if (_actualX != value)
+                {
+                    _actualX = value;
+                    OnPropertyChanged(nameof(ActualX));
+                    UpdateStatus();
+                }
+            }
+        }
+
+        public double ActualY
+        {
+            get => _actualY;
+            set
+            {
+                if (_actualY != value)
+                {
+                    _actualY = value;
+                    OnPropertyChanged(nameof(ActualY));
+                    UpdateStatus();
+                }
+            }
+        }
+
+        public double ActualZ
+        {
+            get => _actualZ;
+            set
+            {
+                if (_actualZ != value)
+                {
+                    _actualZ = value;
+                    OnPropertyChanged(nameof(ActualZ));
+                    UpdateStatus();
+                }
+            }
+        }
+
+        public double ToleranceValue
+        {
+            get => _toleranceValue;
+            set
+            {
+                if (_toleranceValue != value)
+                {
+                    _toleranceValue = value;
+                    OnPropertyChanged(nameof(ToleranceValue));
+                    UpdateStatus();
+                }
+            }
+        }
+
+        public MeasurementStatus Status
+        {
+            get => _status;
+            set
+            {
+                if (_status != value)
+                {
+                    _status = value;
+                    OnPropertyChanged(nameof(Status));
+                }
+            }
+        }
+
+        public bool IsExpanded
+        {
+            get => _isExpanded;
+            set
+            {
+                if (_isExpanded != value)
+                {
+                    _isExpanded = value;
+                    OnPropertyChanged(nameof(IsExpanded));
+                }
+            }
+        }
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected != value)
+                {
+                    _isSelected = value;
+                    OnPropertyChanged(nameof(IsSelected));
+                }
+            }
+        }
+
+        public double MeasurementProgress
+        {
+            get => _measurementProgress;
+            set
+            {
+                if (_measurementProgress != value)
+                {
+                    _measurementProgress = value;
+                    OnPropertyChanged(nameof(MeasurementProgress));
+                    
+                    if (value == 0)
+                    {
+                        Status = MeasurementStatus.InProgress;
+                    }
+                    else if (value == 100)
+                    {
+                        UpdateStatus();
+                    }
+                }
+            }
+        }
+
+        public bool IsInProgress
+        {
+            get => _isInProgress;
+            private set
+            {
+                if (_isInProgress != value)
+                {
+                    _isInProgress = value;
+                    OnPropertyChanged(nameof(IsInProgress));
+                }
+            }
+        }
+
+        private void UpdateStatus()
+        {
+            if (_measurementProgress < 100)
+            {
+                Status = MeasurementStatus.InProgress;
+                IsInProgress = true;
+                return;
+            }
+
+            IsInProgress = false;
+
+            double deltaX = Math.Abs(ExpectedX - ActualX);
+            double deltaY = Math.Abs(ExpectedY - ActualY);
+            double deltaZ = Math.Abs(ExpectedZ - ActualZ);
+
+            Status = (deltaX <= _toleranceValue && deltaY <= _toleranceValue && deltaZ <= _toleranceValue)
+                ? MeasurementStatus.Pass
+                : MeasurementStatus.Fail;
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+    public enum MeasurementStatus
+    {
+        NotMeasured,
+        InProgress,
+        Pass,
+        Fail
+    }
+}

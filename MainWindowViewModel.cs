@@ -1,16 +1,15 @@
+using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Media.Media3D;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.DependencyInjection;
-using System.Windows.Media.Media3D;
-using System.Windows;
 using CMMDemoApp.Models;
+using CMMDemoApp.Services;
 using CMMDemoApp.ViewModels;
-using System.Windows.Media;
-using System;
 using CMMDemoApp.Views;
-using System.Diagnostics;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace CMMDemoApp;
 
@@ -19,6 +18,8 @@ namespace CMMDemoApp;
 /// </summary>
 public partial class MainWindowViewModel : ObservableObject
 {
+    private readonly IMeasurementService _measurementService;
+    
     public ObservableCollection<MeasurementResult> MeasurementResults { get; } = new();
 
     [ObservableProperty]
@@ -32,14 +33,26 @@ public partial class MainWindowViewModel : ObservableObject
 
     [ObservableProperty]
     private string now = DateTime.Now.ToString("HH:mm");
+    
+    [ObservableProperty]
+    private ObservableCollection<PartMeasurement> _parts = new();
 
-    public MainWindowViewModel()
+    public IRelayCommand<MeasurementPoint> MeasurePointCommand { get; }
+    public IRelayCommand ExpandAllCommand { get; }
+    public IRelayCommand CollapseAllCommand { get; }
+
+    public MainWindowViewModel(IMeasurementService measurementService)
     {
+        _measurementService = measurementService;
+        
         LoadModelCommand = new RelayCommand(LoadModel);
         StartMeasurementCommand = new RelayCommand(StartMeasurement);
         ExportReportCommand = new RelayCommand(ExportReport);
         ShowDemoModelCommand = new RelayCommand(ShowDemoModel);
-        AddSampleData();
+        
+        MeasurePointCommand = new AsyncRelayCommand<MeasurementPoint>(MeasurePointAsync);
+        ExpandAllCommand = new RelayCommand(ExpandAll);
+        CollapseAllCommand = new RelayCommand(CollapseAll);
         
         // Update time every minute
         var timer = new System.Windows.Threading.DispatcherTimer
@@ -48,6 +61,8 @@ public partial class MainWindowViewModel : ObservableObject
         };
         timer.Tick += (s, e) => Now = DateTime.Now.ToString("HH:mm");
         timer.Start();
+        
+        LoadInitialData();
     }
 
     private void LoadModel()
@@ -88,6 +103,60 @@ public partial class MainWindowViewModel : ObservableObject
         {
             Debug.WriteLine($"[CMM] Error in ShowDemoModel: {ex.Message}");
             MessageBox.Show($"Error displaying demo model: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private async void LoadInitialData()
+    {
+        try
+        {
+            var part = await _measurementService.LoadExpectedDataAsync(@"TestData\input_data\part001_expected.xml");
+            if (part != null)
+            {
+                Parts.Add(part);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[CMM] Error loading initial data: {ex.Message}");
+            MessageBox.Show("Failed to load initial measurement data", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private async Task MeasurePointAsync(MeasurementPoint? point)
+    {
+        if (point == null) return;
+        
+        try
+        {
+            await _measurementService.SimulateMeasurementAsync(point);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[CMM] Error measuring point: {ex.Message}");
+            MessageBox.Show($"Failed to measure point: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+    
+    private void ExpandAll()
+    {
+        foreach (var part in Parts)
+        {
+            foreach (var point in part.Points)
+            {
+                point.IsExpanded = true;
+            }
+        }
+    }
+    
+    private void CollapseAll()
+    {
+        foreach (var part in Parts)
+        {
+            foreach (var point in part.Points)
+            {
+                point.IsExpanded = false;
+            }
         }
     }
 

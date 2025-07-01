@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.ComponentModel;
 using System.Diagnostics;
 using CMMDemoApp.Views;
+using CommunityToolkit.Mvvm.DependencyInjection;
 
 namespace CMMDemoApp
 {
@@ -30,13 +31,16 @@ namespace CMMDemoApp
             try
             {
                 InitializeComponent();
-                viewModel = new MainWindowViewModel();
+                viewModel = Ioc.Default.GetService<MainWindowViewModel>();
                 DataContext = viewModel;
 
                 this.Loaded += MainWindow_Loaded;
 
                 // Subscribe to property changes to update 3D content
-                viewModel.PropertyChanged += ViewModel_PropertyChanged;
+                if (viewModel != null)
+                {
+                    viewModel.PropertyChanged += ViewModel_PropertyChanged;
+                }
             }
             catch (Exception ex)
             {

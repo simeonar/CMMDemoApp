@@ -43,21 +43,9 @@ public class MeasurementProgram
 {
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-    public List<MeasurementPoint> Points { get; set; } = new();
+    public List<Models.MeasurementPoint> Points { get; set; } = new();
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public string Author { get; set; } = string.Empty;
-}
-
-/// <summary>
-/// Definition eines Messpunktes
-/// </summary>
-public class MeasurementPoint
-{
-    public string Name { get; set; } = string.Empty;
-    public System.Numerics.Vector3 Position { get; set; }
-    public System.Numerics.Vector3 ApproachVector { get; set; }
-    public MeasurementType Type { get; set; } = MeasurementType.Point;
-    public double Tolerance { get; set; } = 0.01;
 }
 
 /// <summary>
