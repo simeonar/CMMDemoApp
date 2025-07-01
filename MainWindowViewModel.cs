@@ -3,6 +3,8 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -10,11 +12,24 @@ using CMMDemoApp.Models;
 using CMMDemoApp.Services;
 using CMMDemoApp.ViewModels;
 using CMMDemoApp.Views;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace CMMDemoApp;
 
 /// <summary>
-/// Main ViewModel for the application
+/// Main ViewModel for the CMM application that manages the measurement workflow.
+/// This ViewModel is responsible for:
+/// 1. Managing the primary tree/table-based visualization of measurements
+/// 2. Coordinating measurement operations
+/// 3. Managing measurement data and status
+/// 4. Launching the separate 3D visualization window when needed
+/// 
+/// The separation between tree/table view and 3D visualization is an intentional architectural decision that:
+/// - Keeps the primary workflow simple and efficient
+/// - Allows users to work with measurements while having 3D view on another screen
+/// - Improves application performance by separating heavy 3D rendering
+/// - Makes the application more maintainable by clear separation of concerns
 /// </summary>
 public partial class MainWindowViewModel : ObservableObject
 {
@@ -61,8 +76,6 @@ public partial class MainWindowViewModel : ObservableObject
         };
         timer.Tick += (s, e) => Now = DateTime.Now.ToString("HH:mm");
         timer.Start();
-        
-        LoadInitialData();
     }
 
     private void LoadModel()
@@ -177,6 +190,38 @@ public partial class MainWindowViewModel : ObservableObject
         // Punkte für seitliche Oberflächen
         MeasurementResults.Add(new MeasurementResult { Name = "Punkt 6", X = 40, Y = 0, Z = 0, Nominal = 15.0, Actual = 15.3 }); // Roter Punkt (Abweichung > 0.15)
         MeasurementResults.Add(new MeasurementResult { Name = "Punkt 7", X = -40, Y = -5, Z = 0, Nominal = 15.0, Actual = 14.9 });
+    }
+
+    public void ClearMeasurementPoints()
+    {
+        MeasurementPointsModel?.Children.Clear();
+    }
+
+    private Model3D ConvertMeasurementPointToModel3D(MeasurementPoint point)
+    {
+        var sphere = new MeshGeometry3D();
+        var material = new DiffuseMaterial(new SolidColorBrush(Colors.Red));
+
+        // Example: Create a sphere at the point's coordinates
+        var transform = new TranslateTransform3D(point.ExpectedX, point.ExpectedY, point.ExpectedZ);
+        var geometryModel = new GeometryModel3D(sphere, material)
+        {
+            Transform = transform
+        };
+
+        return geometryModel;
+    }
+
+    public void AddMeasurementPoints(IEnumerable<MeasurementPoint> points)
+    {
+        if (MeasurementPointsModel != null)
+        {
+            foreach (var point in points)
+            {
+                var model3D = ConvertMeasurementPointToModel3D(point);
+                MeasurementPointsModel.Children.Add(model3D);
+            }
+        }
     }
 
     public RelayCommand LoadModelCommand { get; }

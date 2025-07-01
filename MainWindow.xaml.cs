@@ -7,11 +7,23 @@ using System.ComponentModel;
 using System.Diagnostics;
 using CMMDemoApp.Views;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using System.Collections.Generic;
+using System.IO;
+using Newtonsoft.Json;
+using CMMDemoApp.Models;
 
 namespace CMMDemoApp
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    /// <summary>
+    /// Main window of the CMM application that provides the primary measurement workflow interface.
+    /// The main window intentionally uses a tree/table-based visualization as the primary interface because:
+    /// 1. It provides a clear, hierarchical view of parts and measurement points
+    /// 2. Allows for efficient navigation and management of large numbers of measurement points
+    /// 3. Provides immediate access to measurement data and status
+    /// 4. Separates the workflow management from the 3D visualization (available in a separate window)
     /// </summary>
     public partial class MainWindow : Window
     {
@@ -50,6 +62,14 @@ namespace CMMDemoApp
             }
         }
 
+        private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(MainWindowViewModel.MeasurementPointsModel))
+            {
+                UpdateMeasurementPoints();
+            }
+        }
+
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             // Suche Viewport3D und initialisiere camera
@@ -70,6 +90,14 @@ namespace CMMDemoApp
             
             InitializeCamera();
             
+            // Очистка MeasurementPointsModel при старте
+            if (viewModel != null)
+            {
+                viewModel.ClearMeasurementPoints();
+            }
+
+            Debug.WriteLine("[CMM] MeasurementPointsModel очищен при старте");
+
             // Messpunkte anzeigen, falls vorhanden
             UpdateMeasurementPoints();
             
@@ -187,29 +215,36 @@ namespace CMMDemoApp
             }
             else
             {
-                Debug.WriteLine($"[CMM] UpdateMeasurementPoints: Keine Daten oder Container ist null.");
+                Debug.WriteLine("[CMM] UpdateMeasurementPoints: ViewModel oder Container ist null.");
             }
         }
 
-        private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void LoadMeasurementPoints_Click(object sender, RoutedEventArgs e)
         {
-            if (e.PropertyName == nameof(MainWindowViewModel.MeasurementPointsModel))
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog
             {
-                UpdateMeasurementPoints();
-            }
-        }
+                Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*",
+                Title = "Select Measurement Points File"
+            };
 
-        private void OpenDemoModelWindow_Click(object sender, RoutedEventArgs e)
-        {
-            Debug.WriteLine("[CMM] Demo Model Taste gedrückt, rufen ShowDemoModel aus ViewModel auf.");
-            if (viewModel != null)
+            if (openFileDialog.ShowDialog() == true)
             {
-                viewModel.ShowDemoModel();
-            }
-            else
-            {
-                Debug.WriteLine("[CMM] Fehler: viewModel ist null");
-                MessageBox.Show("Fehler: 3D-Modell konnte nicht angezeigt werden", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                try
+                {
+                    string fileContent = File.ReadAllText(openFileDialog.FileName);
+                    var measurementPoints = JsonConvert.DeserializeObject<List<MeasurementPoint>>(fileContent);
+
+                    if (viewModel != null && measurementPoints != null)
+                    {
+                        viewModel.ClearMeasurementPoints();
+                        viewModel.AddMeasurementPoints(measurementPoints);
+                        UpdateMeasurementPoints(); // Trigger 3D update
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error loading or processing file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
     }

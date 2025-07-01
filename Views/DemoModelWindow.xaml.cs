@@ -14,6 +14,13 @@ namespace CMMDemoApp.Views
     /// <summary>
     /// Interaction logic for DemoModelWindow.xaml
     /// </summary>
+    /// <summary>
+    /// Separate window for 3D visualization of measurement models and points.
+    /// This is intentionally kept as a separate window to:
+    /// 1. Maintain clear separation between primary measurement workflow (tree/table view) and 3D visualization
+    /// 2. Allow users to work with measurements in the main window while keeping 3D view visible on another screen
+    /// 3. Provide better performance by rendering 3D content independently from the main UI
+    /// </summary>
     public partial class DemoModelWindow : Window
     {
         private DemoModelViewModel _viewModel = null!;
