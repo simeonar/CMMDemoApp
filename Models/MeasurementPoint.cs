@@ -47,13 +47,25 @@ namespace CMMDemoApp.Models
         private MeasurementStatus _status = MeasurementStatus.NotStarted;
 
         [ObservableProperty]
+        private double _measurementProgress;
+
+        [ObservableProperty]
         private bool _isExpanded;
 
         [ObservableProperty]
         private bool _isSelected;
 
-        [ObservableProperty]
-        private double _measurementProgress;
+        partial void OnMeasurementProgressChanged(double value)
+        {
+            // Update status based on progress
+            Status = value switch
+            {
+                0 => MeasurementStatus.NotStarted,
+                100 => MeasurementStatus.Completed,
+                > 0 and < 100 => MeasurementStatus.InProgress,
+                _ => Status
+            };
+        }
 
         [ObservableProperty]
         private bool _isInProgress;

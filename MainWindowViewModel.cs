@@ -110,13 +110,26 @@ public partial class MainWindowViewModel : ObservableObject
 
         if (value != null)
         {
+            // Set selection on new point
+            value.IsSelected = true;
+
+            // Update the selected point info
             selectedPointInfo = $"Point: {value.Name}\n" +
                 $"Status: {value.Status}\n" +
                 $"Nominal Position: X={value.NominalX:F3}, Y={value.NominalY:F3}, Z={value.NominalZ:F3}\n" +
                 $"Tolerance: {value.ToleranceMin:F3} to {value.ToleranceMax:F3}";
             
-            // Set selection on new point
-            value.IsSelected = true;
+            if (value.MeasuredX.HasValue && value.MeasuredY.HasValue && value.MeasuredZ.HasValue)
+            {
+                // Add measured values if available
+                selectedPointInfo += $"\nMeasured Position: X={value.MeasuredX:F3}, Y={value.MeasuredY:F3}, Z={value.MeasuredZ:F3}";
+                
+                if (value.Deviation.HasValue)
+                {
+                    selectedPointInfo += $"\nDeviation: {value.Deviation:F3}";
+                    selectedPointInfo += $"\nWithin Tolerance: {(value.IsWithinTolerance ? "Yes" : "No")}";
+                }
+            }
         }
         else
         {
@@ -534,6 +547,7 @@ public partial class MainWindowViewModel : ObservableObject
                     {
                         try
                         {
+                            // Set this point as the selected point before measurement starts
                             SelectedPoint = point;
                             
                             // Simulate detailed measurement process
@@ -551,11 +565,8 @@ public partial class MainWindowViewModel : ObservableObject
                             // Add result to the results table
                             MeasurementResults.Add(result);
 
-                            // Update point info if this point is selected
-                            if (point == SelectedPoint)
-                            {
-                                SelectedPointInfo = $"Point: {point.Name}\nNominal: {result.FormattedNominal}\nActual: {result.FormattedActual}\nDeviation: {result.FormattedDeviation}\nStatus: {result.Status}";
-                            }
+                            // Update point info for the selected point
+                            SelectedPointInfo = $"Point: {point.Name}\nNominal: {result.FormattedNominal}\nActual: {result.FormattedActual}\nDeviation: {result.FormattedDeviation}\nStatus: {result.Status}";
                         }
                         catch (Exception ex)
                         {
@@ -600,6 +611,9 @@ public partial class MainWindowViewModel : ObservableObject
 
         try
         {
+            // Set this point as the selected point
+            SelectedPoint = point;
+            
             point.Status = Models.MeasurementStatus.InProgress;
             MeasurementStatus = $"Messe Punkt: {point.Name}";
             
@@ -677,6 +691,9 @@ public partial class MainWindowViewModel : ObservableObject
 
     private async Task SimulatePointMeasurementAsync(MeasurementPoint point)
     {
+        // Ensure this point is set as selected point so status bar updates properly
+        SelectedPoint = point;
+        
         point.IsInProgress = true;
         point.MeasurementProgress = 0;
 

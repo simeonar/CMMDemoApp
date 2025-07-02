@@ -4,19 +4,25 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CMMDemoApp"
+        xmlns:converters="clr-namespace:CMMDemoApp.Converters"
         mc:Ignorable="d"
         Title="KMM Demo App" Height="700" Width="1200"
         Background="{DynamicResource WindowBackgroundBrush}"
         d:DataContext="{d:DesignInstance Type=local:MainWindowViewModel}">
+    <Window.Resources>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+    </Window.Resources>
     <DockPanel>
         <!-- Statusbar -->
         <StatusBar DockPanel.Dock="Bottom" Background="{DynamicResource PanelBackgroundBrush}" Foreground="{DynamicResource TextPrimaryBrush}" Height="28" Padding="10,0">
             <StatusBarItem MinWidth="300">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Status: "/>
-                    <TextBlock Text="{Binding SelectedPoint.Name}" Margin="5,0,5,0" MinWidth="100"/>
-                    <ProgressBar Value="{Binding SelectedPoint.MeasurementProgress}" Width="60" Height="14" Margin="5,0,5,0"/>
-                    <TextBlock Text="{Binding SelectedPoint.MeasurementProgress, StringFormat={}{0:F0}%}" Width="35"/>
+                    <TextBlock Text="{Binding SelectedPoint.Name, TargetNullValue='No point selected'}" Margin="5,0,5,0" MinWidth="100"/>
+                    <ProgressBar Value="{Binding SelectedPoint.MeasurementProgress}" Width="60" Height="14" Margin="5,0,5,0" 
+                                 Visibility="{Binding SelectedPoint, Converter={StaticResource NullToVisibilityConverter}}"/>
+                    <TextBlock Text="{Binding SelectedPoint.MeasurementProgress, StringFormat={}{0:F0}%, TargetNullValue=''}" Width="35" 
+                               Visibility="{Binding SelectedPoint, Converter={StaticResource NullToVisibilityConverter}}"/>
                 </StackPanel>
             </StatusBarItem>
             <Separator/>
@@ -159,7 +165,13 @@
                     <!-- Measurement TreeView -->
                     <TreeView Grid.Row="1" ItemsSource="{Binding Parts}" Margin="10" 
                              Style="{StaticResource ModernTreeView}"
-                             x:Name="MeasurementTreeView">
+                             x:Name="MeasurementTreeView"
+                             SelectedItemChanged="MeasurementTreeView_SelectedItemChanged"
+                             VirtualizingStackPanel.IsVirtualizing="True"
+                             VirtualizingStackPanel.VirtualizationMode="Recycling"
+                             ScrollViewer.CanContentScroll="True"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             ScrollViewer.HorizontalScrollBarVisibility="Auto">
                         <TreeView.ItemContainerStyle>
                             <Style TargetType="TreeViewItem">
                                 <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>

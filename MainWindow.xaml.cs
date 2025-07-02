@@ -110,6 +110,14 @@ namespace CMMDemoApp
             }
         }
 
-
+        private void MeasurementTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            // Handle selection changes in the TreeView
+            if (e.NewValue is MeasurementPoint point && viewModel != null)
+            {
+                // Update the selected point in the ViewModel
+                viewModel.SelectedPoint = point;
+            }
+        }
     }
 }
