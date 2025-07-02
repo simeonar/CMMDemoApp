@@ -97,78 +97,66 @@ public partial class MainWindowViewModel : ObservableObject
 
     public ObservableCollection<MeasurementResult> MeasurementResults { get; } = new();
 
-    private MeasurementPoint? selectedPoint;
-    public MeasurementPoint? SelectedPoint
-    {
-        get => selectedPoint;
-        set
-        {
-            if (SetProperty(ref selectedPoint, value))
-            {
-                UpdateSelectedPointInfo();
-                UpdateMeasurementResults();
-            }
-        }
-    }
+    [ObservableProperty]
+    private MeasurementPoint? _selectedPoint;
 
-    private void UpdateSelectedPointInfo()
+    partial void OnSelectedPointChanged(MeasurementPoint? value)
     {
-        if (selectedPoint == null)
+        if (value != null)
         {
-            SelectedPointInfo = "Wählen Sie einen Punkt für Details...";
-            return;
+            selectedPointInfo = $"Point: {value.Name}\n" +
+                $"Status: {value.Status}\n" +
+                $"Nominal Position: X={value.NominalX:F3}, Y={value.NominalY:F3}, Z={value.NominalZ:F3}\n" +
+                $"Tolerance: {value.ToleranceMin:F3} to {value.ToleranceMax:F3}";
         }
-
-        SelectedPointInfo = $"Punkt: {selectedPoint.Name}\n" +
-            $"Status: {selectedPoint.Status}\n" +
-            $"Nominal Position: X={selectedPoint.NominalX:F3}, Y={selectedPoint.NominalY:F3}, Z={selectedPoint.NominalZ:F3}\n" +
-            $"Tolerance: {selectedPoint.ToleranceMin:F3} to {selectedPoint.ToleranceMax:F3}";
+        else
+        {
+            selectedPointInfo = "Select a point to view details...";
+        }
     }
 
     private void UpdateMeasurementResults()
     {
         MeasurementResults.Clear();
-        if (selectedPoint == null) return;
+        if (SelectedPoint == null) return;
 
-        if (selectedPoint.MeasuredX.HasValue)
+        if (SelectedPoint.MeasuredX.HasValue)
         {
             MeasurementResults.Add(new MeasurementResult 
             { 
                 Name = "X-Position",
-                Nominal = new Vector3((float)selectedPoint.NominalX, 0, 0),
-                Actual = new Vector3((float)selectedPoint.MeasuredX.Value, 0, 0),
-                Deviation = Math.Abs(selectedPoint.MeasuredX.Value - selectedPoint.NominalX),
-                ToleranceMin = selectedPoint.ToleranceMin,
-                ToleranceMax = selectedPoint.ToleranceMax,
-                Status = Math.Abs(selectedPoint.MeasuredX.Value - selectedPoint.NominalX) <= selectedPoint.ToleranceMax ? 
+                Nominal = new Vector3((float)SelectedPoint.NominalX, 0, 0),
+                Actual = new Vector3((float)SelectedPoint.MeasuredX.Value, 0, 0),
+                Deviation = Math.Abs(SelectedPoint.MeasuredX.Value - SelectedPoint.NominalX),
+                ToleranceMin = SelectedPoint.ToleranceMin,
+                ToleranceMax = SelectedPoint.ToleranceMax,
+                Status = Math.Abs(SelectedPoint.MeasuredX.Value - SelectedPoint.NominalX) <= SelectedPoint.ToleranceMax ? 
                     Models.MeasurementStatus.Completed : Models.MeasurementStatus.Failed
             });
-        }
-        if (selectedPoint.MeasuredY.HasValue)
+        }        if (SelectedPoint.MeasuredY.HasValue)
         {
             MeasurementResults.Add(new MeasurementResult 
             { 
                 Name = "Y-Position",
-                Nominal = new Vector3(0, (float)selectedPoint.NominalY, 0),
-                Actual = new Vector3(0, (float)selectedPoint.MeasuredY.Value, 0),
-                Deviation = Math.Abs(selectedPoint.MeasuredY.Value - selectedPoint.NominalY),
-                ToleranceMin = selectedPoint.ToleranceMin,
-                ToleranceMax = selectedPoint.ToleranceMax,
-                Status = Math.Abs(selectedPoint.MeasuredY.Value - selectedPoint.NominalY) <= selectedPoint.ToleranceMax ? 
+                Nominal = new Vector3(0, (float)SelectedPoint.NominalY, 0),
+                Actual = new Vector3(0, (float)SelectedPoint.MeasuredY.Value, 0),
+                Deviation = Math.Abs(SelectedPoint.MeasuredY.Value - SelectedPoint.NominalY),
+                ToleranceMin = SelectedPoint.ToleranceMin,
+                ToleranceMax = SelectedPoint.ToleranceMax,
+                Status = Math.Abs(SelectedPoint.MeasuredY.Value - SelectedPoint.NominalY) <= SelectedPoint.ToleranceMax ?
                     Models.MeasurementStatus.Completed : Models.MeasurementStatus.Failed
             });
-        }
-        if (selectedPoint.MeasuredZ.HasValue)
+        }        if (SelectedPoint.MeasuredZ.HasValue)
         {
             MeasurementResults.Add(new MeasurementResult 
             { 
                 Name = "Z-Position",
-                Nominal = new Vector3(0, 0, (float)selectedPoint.NominalZ),
-                Actual = new Vector3(0, 0, (float)selectedPoint.MeasuredZ.Value),
-                Deviation = Math.Abs(selectedPoint.MeasuredZ.Value - selectedPoint.NominalZ),
-                ToleranceMin = selectedPoint.ToleranceMin,
-                ToleranceMax = selectedPoint.ToleranceMax,
-                Status = Math.Abs(selectedPoint.MeasuredZ.Value - selectedPoint.NominalZ) <= selectedPoint.ToleranceMax ? 
+                Nominal = new Vector3(0, 0, (float)SelectedPoint.NominalZ),
+                Actual = new Vector3(0, 0, (float)SelectedPoint.MeasuredZ.Value),
+                Deviation = Math.Abs(SelectedPoint.MeasuredZ.Value - SelectedPoint.NominalZ),
+                ToleranceMin = SelectedPoint.ToleranceMin,
+                ToleranceMax = SelectedPoint.ToleranceMax,
+                Status = Math.Abs(SelectedPoint.MeasuredZ.Value - SelectedPoint.NominalZ) <= SelectedPoint.ToleranceMax ?
                     Models.MeasurementStatus.Completed : Models.MeasurementStatus.Failed
             });
         }

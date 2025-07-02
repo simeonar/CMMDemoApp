@@ -159,7 +159,7 @@
                     <!-- Measurement TreeView -->
                     <TreeView Grid.Row="1" ItemsSource="{Binding Parts}" Margin="10" 
                              Style="{StaticResource ModernTreeView}"
-                             SelectedItemChanged="TreeView_SelectedItemChanged">
+                             SelectedItem="{Binding SelectedPoint, Mode=TwoWay}">
                         <TreeView.Resources>
                             <!-- Tooltip Template for Part -->
                             <DataTemplate x:Key="PartTooltipTemplate">
