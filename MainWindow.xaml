@@ -159,7 +159,13 @@
                     <!-- Measurement TreeView -->
                     <TreeView Grid.Row="1" ItemsSource="{Binding Parts}" Margin="10" 
                              Style="{StaticResource ModernTreeView}"
-                             SelectedItem="{Binding SelectedPoint, Mode=TwoWay}">
+                             x:Name="MeasurementTreeView">
+                        <TreeView.ItemContainerStyle>
+                            <Style TargetType="TreeViewItem">
+                                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                                <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                            </Style>
+                        </TreeView.ItemContainerStyle>
                         <TreeView.Resources>
                             <!-- Tooltip Template for Part -->
                             <DataTemplate x:Key="PartTooltipTemplate">

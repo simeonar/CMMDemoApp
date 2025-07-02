@@ -102,17 +102,28 @@ public partial class MainWindowViewModel : ObservableObject
 
     partial void OnSelectedPointChanged(MeasurementPoint? value)
     {
+        // Clear selection from previously selected point
+        if (SelectedPoint != null && SelectedPoint != value)
+        {
+            SelectedPoint.IsSelected = false;
+        }
+
         if (value != null)
         {
             selectedPointInfo = $"Point: {value.Name}\n" +
                 $"Status: {value.Status}\n" +
                 $"Nominal Position: X={value.NominalX:F3}, Y={value.NominalY:F3}, Z={value.NominalZ:F3}\n" +
                 $"Tolerance: {value.ToleranceMin:F3} to {value.ToleranceMax:F3}";
+            
+            // Set selection on new point
+            value.IsSelected = true;
         }
         else
         {
             selectedPointInfo = "Select a point to view details...";
         }
+
+        UpdateMeasurementResults();
     }
 
     private void UpdateMeasurementResults()
