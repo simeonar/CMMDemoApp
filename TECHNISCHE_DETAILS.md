@@ -16,8 +16,50 @@ Diese WPF-Anwendung demonstriert fortgeschrittene Programmier- und UI-Entwicklun
 Models/
 ├── MeasurementPoint.cs     // Einzelmesspunkt mit Koordinaten
 ├── PartMeasurement.cs      // Bauteilmessung mit Messpunkten
-└── MeasurementResult.cs    // Messergebnisse mit Toleranzen
+├── MeasurementResult.cs    // Messergebnisse mit Toleranzen
+├── ReportFormat.cs         // Exportformate für Berichte
+├── ReportOptions.cs        // Konfigurationsoptionen für Berichte
+└── VisualizationType.cs    // Typen der Datenvisualisierung
 ```
+
+### Reporting-System
+```csharp
+Services/
+├── IReportingService.cs    // Interface für Report-Generierung
+└── ReportingService.cs     // Implementierung mit verschiedenen Formaten
+```
+
+- **PDF-Reports**: Professionelle Berichte mit iText7
+  - Tabellen mit Messdaten
+  - Statistische Auswertungen
+  - Grafische Darstellungen
+  - Toleranzanalysen
+
+- **Weitere Formate**:
+  - XML: Strukturierte Daten für Systemintegration
+  - CSV: Tabellenkalkulationskompatibel
+  - HTML: Interaktive Webberichte
+
+### Visualisierungssystem
+
+#### Statistische Visualisierungen
+- Verwendung von ScottPlot für:
+  - Verteilungsdiagramme
+  - Toleranzbänder
+  - Abweichungsanalysen
+  - Trendanalysen
+
+#### Visualisierungsfenster
+```csharp
+Views/
+├── VisualizationWindow.xaml    // Hauptfenster für Visualisierungen
+└── ReportPreviewWindow.xaml    // Vorschaufenster für Berichte
+```
+
+- Modulares Design
+- Einheitliche Benutzeroberfläche
+- Vorschaufunktion für alle Exportformate
+- Echtzeit-Datenaktualisierung
 
 ## 🎨 UI-Komponenten
 

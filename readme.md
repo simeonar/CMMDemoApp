@@ -21,20 +21,36 @@ A modern WPF application for visualizing and analyzing Coordinate Measuring Mach
 
 ### User Interface
 - **Tree View Navigation**: Hierarchical display of parts and measurement points
-- **Results Table**: Detailed measurement results with deviation analysis
+- **Advanced Visualizations**: Multiple statistical and analytical views:
+  - Statistics Summary with key performance indicators
+  - Individual Point Details with precise measurements
+  - Tolerance Analysis with distribution graphs
+  - Success/Failure Status overview
+  - Deviation Measurements analysis
+  - Statistical Graphs and trends
+- **Report Preview**: Interactive preview for all export formats
+- **Modern UI**: Clean, modular interface with customizable layouts
 - **Status Indicators**: Visual feedback for measurement status
 - **Progress Tracking**: Progress bars for individual and overall progress
 - **Error Handling**: Comprehensive error messages and status updates
 
-### Data Processing
+### Data Processing and Export
 - **Tolerance Checking**: Automatic verification against defined tolerances
 - **Real-time Updates**: Immediate UI updates during measurement process
 - **Data Persistence**: XML-based data storage and loading
 - **Result Analysis**: Deviation calculations and pass/fail determination
+- **Multiple Export Formats**:
+  - PDF Reports with tables and graphs
+  - XML Data for system integration
+  - CSV Data for spreadsheet analysis
+  - HTML Reports for web viewing
+- **Customizable Reports**: Configure included data and visualizations
 
 ## Technical Stack
 - **Framework**: .NET 8.0 with WPF
 - **Architecture**: MVVM pattern with CommunityToolkit.Mvvm
+- **Visualization**: ScottPlot for statistical graphs
+- **PDF Generation**: iText7 for professional reports
 - **UI Design**: Modern interface with customizable layouts
 - **Version Control**: Git
 - **Testing**: Unit tests for core functionality
@@ -86,20 +102,36 @@ Eine moderne WPF-Anwendung zur Visualisierung und Analyse von Koordinatenmessmas
 
 ### Benutzeroberfläche
 - **Baumansicht**: Hierarchische Anzeige von Teilen und Messpunkten
-- **Ergebnistabelle**: Detaillierte Messergebnisse mit Abweichungsanalyse
+- **Erweiterte Visualisierungen**: Mehrere statistische und analytische Ansichten:
+  - Statistik-Zusammenfassung mit Leistungsindikatoren
+  - Detailansicht einzelner Messpunkte
+  - Toleranzanalyse mit Verteilungsgraphen
+  - Erfolgs-/Fehler-Statusübersicht
+  - Abweichungsmessungsanalyse
+  - Statistische Graphen und Trends
+- **Berichtvorschau**: Interaktive Vorschau für alle Exportformate
+- **Moderne Benutzeroberfläche**: Klare, modulare Oberfläche
 - **Statusindikatoren**: Visuelle Rückmeldung zum Messstatus
 - **Fortschrittsanzeige**: Fortschrittsbalken für einzelne und Gesamtmessungen
 - **Fehlerbehandlung**: Umfassende Fehlermeldungen
 
-### Datenverarbeitung
+### Datenverarbeitung und Export
 - **Toleranzprüfung**: Automatische Überprüfung gegen definierte Toleranzen
 - **Echtzeit-Updates**: Sofortige UI-Aktualisierungen während des Messvorgangs
 - **Datenpersistenz**: XML-basierte Datenspeicherung und -ladung
 - **Ergebnisanalyse**: Abweichungsberechnungen und Gut/Schlecht-Bestimmung
+- **Mehrere Exportformate**:
+  - PDF-Berichte mit Tabellen und Graphen
+  - XML-Daten für Systemintegration
+  - CSV-Daten für Tabellenanalyse
+  - HTML-Berichte für Webanzeige
+- **Anpassbare Berichte**: Konfigurierbare Daten und Visualisierungen
 
 ## Technischer Stack
 - **Framework**: .NET 8.0 mit WPF
-- **Architektur**: MVVM-Muster mit CommunityToolkit.Mvvm
+- **Architektur**: MVVM-Pattern mit CommunityToolkit.Mvvm
+- **Visualisierung**: ScottPlot für statistische Graphen
+- **PDF-Generierung**: iText7 für professionelle Berichte
 - **UI-Design**: Moderne Oberfläche mit anpassbaren Layouts
 - **Versionskontrolle**: Git
 - **Tests**: Unit-Tests für Kernfunktionalität
