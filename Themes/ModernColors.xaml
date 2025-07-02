@@ -30,6 +30,7 @@
     <SolidColorBrush x:Key="GridLineBrush" Color="#E0E0E0"/>
     <SolidColorBrush x:Key="ButtonHoverBrush" Color="#D3D3D3"/>
     <SolidColorBrush x:Key="ButtonPressedBrush" Color="#B0B0B0"/>
+    <SolidColorBrush x:Key="AccentBackgroundBrush" Color="#FFF4F8FF"/>
 
     <!-- Drop shadow effect for modern panel appearance -->
     <DropShadowEffect x:Key="DropShadowEffect" BlurRadius="12" ShadowDepth="2" Color="#22000000" Opacity="0.4"/>

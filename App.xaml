@@ -2,16 +2,14 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:CMMDemoApp"
-             xmlns:converters="clr-namespace:CMMDemoApp.Converters"
-             StartupUri="MainWindow.xaml">
+             xmlns:converters="clr-namespace:CMMDemoApp.Converters">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Themes/ModernColors.xaml" />
+                <ResourceDictionary Source="Resources/VisualizationStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             
-            <!-- View Model Locator -->
-            <local:ViewModelLocator x:Key="Locator" />
             
             <!-- Converters -->
             <converters:MeasurementStatusToBrushConverter x:Key="StatusToBrushConverter" />

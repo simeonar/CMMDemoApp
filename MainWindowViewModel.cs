@@ -1,20 +1,21 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
-using System.Numerics;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Win32;
+using System.Numerics;
 using CMMDemoApp.Models;
 using CMMDemoApp.Services;
 using CMMDemoApp.ViewModels;
 using CMMDemoApp.Views;
-using Newtonsoft.Json;
-using System.IO;
 
 namespace CMMDemoApp;
 
@@ -55,12 +56,30 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private string _measurementStatus = string.Empty;
 
-    // Progress tracking is now handled through SelectedPoint.MeasurementProgress
+    [ObservableProperty]
+    private string _selectedReportFormat = "PDF Report (*.pdf)";
+
+    [ObservableProperty]
+    private ReportOptions _reportOptions = new()
+    {
+        IncludeStatistics = true,
+        IncludeGraphs = true,
+        IncludeIndividualPoints = true,
+        Include3DVisualization = false
+    };
+
+    public ObservableCollection<string> AvailableReportFormats { get; } = new()
+    {
+        "PDF Report (*.pdf)",
+        "XML Data (*.xml)",
+        "CSV Data (*.csv)",
+        "HTML Report (*.html)"
+    };
 
     private readonly IMeasurementService _measurementService;
     private readonly IMeasurementSimulationService _simulationService;
-
-    private readonly Random _random = new Random();
+    private readonly IReportingService _reportingService;
+    private readonly Random _random = new();
 
     // Commands
     public IAsyncRelayCommand LoadModelCommand { get; }
@@ -70,6 +89,20 @@ public partial class MainWindowViewModel : ObservableObject
     public IAsyncRelayCommand<MeasurementPoint> MeasurePointCommand { get; }
     public IRelayCommand ExpandAllCommand { get; }
     public IRelayCommand CollapseAllCommand { get; }
+
+    // Visualization Commands
+    public IRelayCommand OpenStatisticsSummaryCommand { get; }
+    public IRelayCommand OpenPointDetailsCommand { get; }
+    public IRelayCommand OpenToleranceAnalysisCommand { get; }
+    public IRelayCommand OpenSuccessFailureStatusCommand { get; }
+    public IRelayCommand OpenDeviationMeasurementsCommand { get; }
+    public IRelayCommand OpenGraphsCommand { get; }
+
+    // Export Commands
+    public IRelayCommand ExportPdfReportCommand { get; }
+    public IRelayCommand ExportXmlDataCommand { get; }
+    public IRelayCommand ExportCsvDataCommand { get; }
+    public IRelayCommand ExportHtmlReportCommand { get; }
 
     public ObservableCollection<MeasurementResult> MeasurementResults { get; } = new();
 
@@ -199,19 +232,47 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
-    public MainWindowViewModel(IMeasurementService measurementService, IMeasurementSimulationService simulationService)
+    public MainWindowViewModel(IMeasurementService measurementService, IMeasurementSimulationService simulationService, IReportingService reportingService)
     {
         _measurementService = measurementService ?? throw new ArgumentNullException(nameof(measurementService));
         _simulationService = simulationService ?? throw new ArgumentNullException(nameof(simulationService));
+        _reportingService = reportingService ?? throw new ArgumentNullException(nameof(reportingService));
         
+        // Initialize existing commands
         LoadModelCommand = new AsyncRelayCommand(LoadModel);
         StartMeasurementCommand = new AsyncRelayCommand(StartMeasurementAsync);
-        ExportReportCommand = new RelayCommand(ExportReport);
         ShowDemoModelCommand = new RelayCommand(ShowDemoModel);
-        
         MeasurePointCommand = new AsyncRelayCommand<MeasurementPoint>(SimulateMeasurementAsync);
         ExpandAllCommand = new RelayCommand(ExpandAll);
         CollapseAllCommand = new RelayCommand(CollapseAll);
+
+        // Initialize visualization commands
+        OpenStatisticsSummaryCommand = new RelayCommand(OpenStatisticsSummary);
+        OpenPointDetailsCommand = new RelayCommand(OpenPointDetails);
+        _measurementService = measurementService;
+        _simulationService = simulationService;
+        _reportingService = reportingService;
+
+        LoadModelCommand = new AsyncRelayCommand(LoadModel);
+        StartMeasurementCommand = new AsyncRelayCommand(StartMeasurementAsync);
+        ExportReportCommand = new RelayCommand(() => ExportReport(ReportFormat.PDF));
+        ShowDemoModelCommand = new RelayCommand(ShowDemoModel);
+        MeasurePointCommand = new AsyncRelayCommand<MeasurementPoint>(MeasurePointAsync);
+        ExpandAllCommand = new RelayCommand(ExpandAll);
+        CollapseAllCommand = new RelayCommand(CollapseAll);
+        
+        OpenStatisticsSummaryCommand = new RelayCommand(OpenStatisticsSummary);
+        OpenPointDetailsCommand = new RelayCommand(OpenPointDetails);
+        OpenToleranceAnalysisCommand = new RelayCommand(OpenToleranceAnalysis);
+        OpenSuccessFailureStatusCommand = new RelayCommand(OpenSuccessFailureStatus);
+        OpenDeviationMeasurementsCommand = new RelayCommand(OpenDeviationMeasurements);
+        OpenGraphsCommand = new RelayCommand(OpenGraphs);
+
+        // Initialize export commands
+        ExportPdfReportCommand = new RelayCommand(() => ExportReport(ReportFormat.PDF));
+        ExportXmlDataCommand = new RelayCommand(() => ExportReport(ReportFormat.XML));
+        ExportCsvDataCommand = new RelayCommand(() => ExportReport(ReportFormat.CSV));
+        ExportHtmlReportCommand = new RelayCommand(() => ExportReport(ReportFormat.HTML));
         
         // Update time every minute
         var timer = new System.Windows.Threading.DispatcherTimer
@@ -269,34 +330,138 @@ public partial class MainWindowViewModel : ObservableObject
         MessageBox.Show("Messung gestartet! (Demo-Modus)", "KMM-System", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
-    private void ExportReport()
-    {
-        MessageBox.Show("Bericht exportiert! (Demo-Modus)", "KMM-System", MessageBoxButton.OK, MessageBoxImage.Information);
-    }
+    private void OpenStatisticsSummary() => 
+        ShowVisualizationWindow("Statistics Summary", VisualizationType.Statistics);
 
-    /// <summary>
-    /// Opens a separate window to display the demo model
-    /// </summary>
-    public void ShowDemoModel()
+    private void OpenPointDetails() => 
+        ShowVisualizationWindow("Point Details", VisualizationType.PointDetails);
+
+    private void OpenToleranceAnalysis() => 
+        ShowVisualizationWindow("Tolerance Analysis", VisualizationType.Tolerance);
+
+    private void OpenSuccessFailureStatus() => 
+        ShowVisualizationWindow("Success/Failure Status", VisualizationType.Status);
+
+    private void OpenDeviationMeasurements() => 
+        ShowVisualizationWindow("Deviation Measurements", VisualizationType.Deviations);
+
+    private void OpenGraphs() => 
+        ShowVisualizationWindow("Measurement Graphs", VisualizationType.Graphs);
+
+    private async void ExportReport(ReportFormat format)
     {
-        Debug.WriteLine("[CMM] ShowDemoModel command executed");
-        
+        if (Parts.Count == 0)
+        {
+            MessageBox.Show("No measurement data available to export.", "Export Report", 
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        var options = new ReportOptions
+        {
+            IncludeStatistics = true,
+            IncludeGraphs = format == ReportFormat.PDF || format == ReportFormat.HTML,
+            IncludeIndividualPoints = true,
+            Include3DVisualization = format == ReportFormat.PDF || format == ReportFormat.HTML
+        };
+
+        var extension = format switch
+        {
+            ReportFormat.PDF => ".pdf",
+            ReportFormat.XML => ".xml",
+            ReportFormat.CSV => ".csv",
+            ReportFormat.HTML => ".html",
+            _ => ".txt"
+        };
+
+        var fileType = format switch
+        {
+            ReportFormat.PDF => "PDF Report",
+            ReportFormat.XML => "XML Data",
+            ReportFormat.CSV => "CSV Data",
+            ReportFormat.HTML => "HTML Report",
+            _ => "Report"
+        };
+
+        // Open preview window first
         try
         {
-            // Create ViewModel instance directly, not relying on DI
-            var demoViewModel = new DemoModelViewModel();
-            Debug.WriteLine("[CMM] Created new DemoModelViewModel instance directly");
-            
-            // Create and display 3D model window
-            var demoWindow = new DemoModelWindow();
-            demoWindow.DataContext = demoViewModel;
-            demoWindow.Show();
-            Debug.WriteLine("[CMM] DemoModelWindow created and shown");
+            var previewWindow = new ReportPreviewWindow();
+            var previewViewModel = new ReportPreviewViewModel(Parts, format, options);
+            previewWindow.DataContext = previewViewModel;
+
+            if (previewWindow.ShowDialog() == true)
+            {
+                await ExportReportAsync(Parts, extension, format, options);
+            }
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[CMM] Error in ShowDemoModel: {ex.Message}");
-            MessageBox.Show($"Error displaying demo model: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Debug.WriteLine($"Error showing preview: {ex.Message}");
+            MessageBox.Show("Failed to open report preview", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private async Task ExportReportAsync(IEnumerable<PartMeasurement> measurements, string extension, ReportFormat format, ReportOptions options)
+    {
+        var dialog = new SaveFileDialog
+        {
+            Title = "Export Report",
+            Filter = $"{format} Files (*{extension})|*{extension}",
+            DefaultExt = extension,
+            InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            try
+            {
+                var success = await _reportingService.ExportReportAsync(measurements, dialog.FileName, format, options);
+                if (success)
+                {
+                    MessageBox.Show("Report exported successfully!", "Export Complete", 
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = dialog.FileName,
+                            UseShellExecute = true
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error opening exported report: {ex.Message}");
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Failed to export report.", "Export Error", 
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error exporting report: {ex.Message}", "Export Error", 
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+
+    private void ShowVisualizationWindow(string title, VisualizationType type)
+    {
+        try
+        {
+            var window = new VisualizationWindow();
+            var viewModel = new VisualizationViewModel(title, type, Parts);
+            window.DataContext = viewModel;
+            window.Show();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error showing visualization: {ex.Message}");
+            MessageBox.Show("Failed to open visualization window", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -633,5 +798,73 @@ public partial class MainWindowViewModel : ObservableObject
 
         point.MeasurementProgress = 100;
         point.IsInProgress = false;
+    }
+
+    private void ShowDemoModel()
+    {
+        try
+        {
+            // Create or update the demo model geometry
+            DemoModelGeometry = CreateDemoMeshGeometry();
+            
+            // Update measurement points if available
+            if (Parts.Any())
+            {
+                var allPoints = Parts.SelectMany(p => p.Points);
+                ClearMeasurementPoints();
+                AddMeasurementPoints(allPoints);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error showing demo model: {ex.Message}");
+            MessageBox.Show("Failed to display demo model", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private MeshGeometry3D CreateDemoMeshGeometry()
+    {
+        // Create a simple cube mesh for demonstration
+        var mesh = new MeshGeometry3D();
+        
+        // Define vertices (8 corners of a cube)
+        var vertices = new Point3DCollection
+        {
+            new Point3D(-1, -1, -1),
+            new Point3D(1, -1, -1),
+            new Point3D(1, 1, -1),
+            new Point3D(-1, 1, -1),
+            new Point3D(-1, -1, 1),
+            new Point3D(1, -1, 1),
+            new Point3D(1, 1, 1),
+            new Point3D(-1, 1, 1)
+        };
+        mesh.Positions = vertices;
+
+        // Define triangles (12 triangles forming 6 faces)
+        var triangles = new Int32Collection
+        {
+            // Front face
+            0, 1, 2,
+            0, 2, 3,
+            // Back face
+            4, 6, 5,
+            4, 7, 6,
+            // Left face
+            0, 3, 7,
+            0, 7, 4,
+            // Right face
+            1, 5, 6,
+            1, 6, 2,
+            // Top face
+            3, 2, 6,
+            3, 6, 7,
+            // Bottom face
+            0, 4, 5,
+            0, 5, 1
+        };
+        mesh.TriangleIndices = triangles;
+
+        return mesh;
     }
 }
