@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Media3D;
+
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -38,15 +38,6 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private string selectedPointInfo = "Wählen Sie einen Punkt für Details...";
 
-    [ObservableProperty]
-    private MeshGeometry3D? demoModelGeometry;
-
-    [ObservableProperty]
-    private Model3DGroup? measurementPointsModel;
-
-    [ObservableProperty]
-    private string _now = DateTime.Now.ToString("HH:mm");
-    
     [ObservableProperty]
     private ObservableCollection<PartMeasurement> _parts = new();
 
@@ -238,7 +229,7 @@ public partial class MainWindowViewModel : ObservableObject
         _simulationService = simulationService ?? throw new ArgumentNullException(nameof(simulationService));
         _reportingService = reportingService ?? throw new ArgumentNullException(nameof(reportingService));
         
-        // Initialize existing commands
+        // Initialize commands
         LoadModelCommand = new AsyncRelayCommand(LoadModel);
         StartMeasurementCommand = new AsyncRelayCommand(StartMeasurementAsync);
         ShowDemoModelCommand = new RelayCommand(ShowDemoModel);
@@ -249,8 +240,6 @@ public partial class MainWindowViewModel : ObservableObject
         // Initialize visualization commands
         OpenStatisticsSummaryCommand = new RelayCommand(OpenStatisticsSummary);
         OpenPointDetailsCommand = new RelayCommand(OpenPointDetails);
-        _measurementService = measurementService;
-        _simulationService = simulationService;
         _reportingService = reportingService;
 
         LoadModelCommand = new AsyncRelayCommand(LoadModel);
@@ -274,13 +263,7 @@ public partial class MainWindowViewModel : ObservableObject
         ExportCsvDataCommand = new RelayCommand(() => ExportReport(ReportFormat.CSV));
         ExportHtmlReportCommand = new RelayCommand(() => ExportReport(ReportFormat.HTML));
         
-        // Update time every minute
-        var timer = new System.Windows.Threading.DispatcherTimer
-        {
-            Interval = TimeSpan.FromMinutes(1)
-        };
-        timer.Tick += (s, e) => Now = DateTime.Now.ToString("HH:mm");
-        timer.Start();
+
     }
 
     private async Task LoadModel()
@@ -323,11 +306,6 @@ public partial class MainWindowViewModel : ObservableObject
             Debug.WriteLine(ex.StackTrace);
             MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
-    }
-
-    private void StartMeasurement()
-    {
-        MessageBox.Show("Messung gestartet! (Demo-Modus)", "KMM-System", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
     private void OpenStatisticsSummary() => 
@@ -524,39 +502,7 @@ public partial class MainWindowViewModel : ObservableObject
         // Results will be added during measurement simulation
     }
 
-    public void ClearMeasurementPoints()
-    {
-        MeasurementPointsModel?.Children.Clear();
-    }
-
-    private Model3D ConvertMeasurementPointToModel3D(MeasurementPoint point)
-    {
-        var sphere = new MeshGeometry3D();
-        var material = new DiffuseMaterial(new SolidColorBrush(Colors.Red));
-
-        // Example: Create a sphere at the point's coordinates
-        var transform = new TranslateTransform3D(point.NominalX, point.NominalY, point.NominalZ);
-        var geometryModel = new GeometryModel3D(sphere, material)
-        {
-            Transform = transform
-        };
-
-        return geometryModel;
-    }
-
-    public void AddMeasurementPoints(IEnumerable<MeasurementPoint> points)
-    {
-        if (MeasurementPointsModel != null)
-        {
-            foreach (var point in points)
-            {
-                var model3D = ConvertMeasurementPointToModel3D(point);
-                MeasurementPointsModel.Children.Add(model3D);
-            }
-        }
-    }
-
-    // Commands moved to the top of the file
+    // All 3D visualization is now handled in DemoModelWindow
 
     private async Task StartMeasurementAsync()
     {
@@ -714,53 +660,21 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
+    // All property change notifications now handled through ObservableObject and bindings
     private void SubscribeToPartEvents(PartMeasurement part)
     {
-        part.PropertyChanged += Part_PropertyChanged;
         part.Points.CollectionChanged += Points_CollectionChanged;
-        foreach (var point in part.Points)
-        {
-            point.PropertyChanged += Point_PropertyChanged;
-        }
     }
 
     private void UnsubscribeFromPartEvents(PartMeasurement part)
     {
-        part.PropertyChanged -= Part_PropertyChanged;
         part.Points.CollectionChanged -= Points_CollectionChanged;
-        foreach (var point in part.Points)
-        {
-            point.PropertyChanged -= Point_PropertyChanged;
-        }
-    }
-
-    private void Part_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-    {
-        // Part property changes are now handled through UI bindings
     }
 
     private void Points_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
-        if (e.OldItems != null)
-        {
-            foreach (MeasurementPoint point in e.OldItems)
-            {
-                point.PropertyChanged -= Point_PropertyChanged;
-            }
-        }
-
-        if (e.NewItems != null)
-        {
-            foreach (MeasurementPoint point in e.NewItems)
-            {
-                point.PropertyChanged += Point_PropertyChanged;
-            }
-        }
-    }
-
-    private void Point_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-    {
-        // Point property changes are now handled through UI bindings
+        // Collection changes trigger UI updates through bindings
+        OnPropertyChanged(nameof(Parts));
     }
 
     private async Task SimulatePointMeasurementAsync(MeasurementPoint point)
@@ -802,69 +716,9 @@ public partial class MainWindowViewModel : ObservableObject
 
     private void ShowDemoModel()
     {
-        try
-        {
-            // Create or update the demo model geometry
-            DemoModelGeometry = CreateDemoMeshGeometry();
-            
-            // Update measurement points if available
-            if (Parts.Any())
-            {
-                var allPoints = Parts.SelectMany(p => p.Points);
-                ClearMeasurementPoints();
-                AddMeasurementPoints(allPoints);
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error showing demo model: {ex.Message}");
-            MessageBox.Show("Failed to display demo model", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
+        var window = new DemoModelWindow();
+        window.Show();
     }
 
-    private MeshGeometry3D CreateDemoMeshGeometry()
-    {
-        // Create a simple cube mesh for demonstration
-        var mesh = new MeshGeometry3D();
-        
-        // Define vertices (8 corners of a cube)
-        var vertices = new Point3DCollection
-        {
-            new Point3D(-1, -1, -1),
-            new Point3D(1, -1, -1),
-            new Point3D(1, 1, -1),
-            new Point3D(-1, 1, -1),
-            new Point3D(-1, -1, 1),
-            new Point3D(1, -1, 1),
-            new Point3D(1, 1, 1),
-            new Point3D(-1, 1, 1)
-        };
-        mesh.Positions = vertices;
 
-        // Define triangles (12 triangles forming 6 faces)
-        var triangles = new Int32Collection
-        {
-            // Front face
-            0, 1, 2,
-            0, 2, 3,
-            // Back face
-            4, 6, 5,
-            4, 7, 6,
-            // Left face
-            0, 3, 7,
-            0, 7, 4,
-            // Right face
-            1, 5, 6,
-            1, 6, 2,
-            // Top face
-            3, 2, 6,
-            3, 6, 7,
-            // Bottom face
-            0, 4, 5,
-            0, 5, 1
-        };
-        mesh.TriangleIndices = triangles;
-
-        return mesh;
-    }
 }
