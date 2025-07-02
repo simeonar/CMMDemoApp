@@ -575,7 +575,6 @@ public partial class MainWindowViewModel : ObservableObject
 
                     if (point.IsSelected)
                     {
-                        UpdateSelectedPointInfo();
                         UpdateMeasurementResults();
                     }
                 }
