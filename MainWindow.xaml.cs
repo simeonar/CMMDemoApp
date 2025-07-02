@@ -29,7 +29,6 @@ namespace CMMDemoApp
     public partial class MainWindow : Window
     {
         private MainWindowViewModel? viewModel;
-        private TreeView? MeasurementTreeView;
 
         public MainWindow()
         {
@@ -74,18 +73,6 @@ namespace CMMDemoApp
             if (viewModel != null)
             {
                 Debug.WriteLine("[CMM] MainWindow loaded");
-                MeasurementTreeView = this.FindName("MeasurementTreeView") as TreeView;
-                
-                if (MeasurementTreeView != null)
-                {
-                    MeasurementTreeView.SelectedItemChanged += (s, e) =>
-                    {
-                        if (e.NewValue is MeasurementPoint point)
-                        {
-                            viewModel.SelectedPoint = point;
-                        }
-                    };
-                }
             }
         }
 
