@@ -1,0 +1,27 @@
+<UserControl x:Class="CMMDemoApp.Views.ThemeSelector"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CMMDemoApp.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="200">
+    <StackPanel Margin="0,10,0,10">
+        <TextBlock Text="Theme Selection" 
+                   FontWeight="SemiBold" 
+                   FontSize="16" 
+                   Margin="10,5,10,15" 
+                   Foreground="{DynamicResource TextPrimaryBrush}"
+                   HorizontalAlignment="Center"/>
+
+        <ComboBox x:Name="ThemeComboBox" 
+                  SelectionChanged="ThemeComboBox_SelectionChanged"
+                  Margin="10,0,10,20"
+                  HorizontalAlignment="Stretch">
+            <ComboBoxItem Content="Modern Fluent" Tag="Modern Fluent" IsSelected="True"/>
+            <ComboBoxItem Content="Minimalist Scientific" Tag="Minimalist Scientific"/>
+            <ComboBoxItem Content="Industrial Professional" Tag="Industrial Professional"/>
+            <ComboBoxItem Content="Dark Technical" Tag="Dark Technical"/>
+        </ComboBox>
+    </StackPanel>
+</UserControl>

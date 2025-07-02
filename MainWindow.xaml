@@ -4,14 +4,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CMMDemoApp"
+        xmlns:views="clr-namespace:CMMDemoApp.Views"
         xmlns:converters="clr-namespace:CMMDemoApp.Converters"
         mc:Ignorable="d"
         Title="KMM Demo App" Height="700" Width="1200"
         Background="{DynamicResource WindowBackgroundBrush}"
         d:DataContext="{d:DesignInstance Type=local:MainWindowViewModel}">
-    <Window.Resources>
-        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
-    </Window.Resources>
     <DockPanel>
         <!-- Statusbar -->
         <StatusBar DockPanel.Dock="Bottom" Background="{DynamicResource PanelBackgroundBrush}" Foreground="{DynamicResource TextPrimaryBrush}" Height="28" Padding="10,0">
@@ -43,73 +41,80 @@
                 <ColumnDefinition Width="340"/>
             </Grid.ColumnDefinitions>
             <!-- Linke Bedienleiste -->
-            <Border Grid.Column="0" Margin="0,20,10,20" Style="{StaticResource ModernPanel}" Panel.ZIndex="2">
-                <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
-                    <Button Height="56" Margin="10 10 10 0" Command="{Binding LoadModelCommand}" ToolTip="STL-Modell oder XML-Messdaten laden" Style="{StaticResource ModernButton}">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <TextBlock Text="📂" FontSize="24" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="Datei laden" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Height="56" Margin="10 10 10 0" Command="{Binding StartMeasurementCommand}" ToolTip="Messung starten" Style="{StaticResource ModernButton}">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <TextBlock Text="▶" FontSize="24" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="Messen" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Height="56" Margin="10 10 10 0" Command="{Binding ExportReportCommand}" ToolTip="Messbericht exportieren" Style="{StaticResource ModernButton}">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <TextBlock Text="📝" FontSize="24" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="Export" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Height="56" Margin="10 10 10 0" Command="{Binding ShowDemoModelCommand}" ToolTip="Demo-Modell anzeigen" Style="{StaticResource ModernButton}">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <TextBlock Text="🟧" FontSize="24" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="Demo-Modell" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
+            <Border Grid.Column="0" Margin="0,20,10,20" Style="{DynamicResource ModernPanel}" Panel.ZIndex="2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Main Buttons -->
+                    <StackPanel Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                        <Button Height="56" Margin="10 10 10 0" Command="{Binding LoadModelCommand}" ToolTip="STL-Modell oder XML-Messdaten laden" Style="{DynamicResource ModernButton}">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="Datei laden" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Height="56" Margin="10 10 10 0" Command="{Binding StartMeasurementCommand}" ToolTip="Messung starten" Style="{DynamicResource ModernButton}">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="Messen" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Height="56" Margin="10 10 10 0" Command="{Binding ExportReportCommand}" ToolTip="Messbericht exportieren" Style="{DynamicResource ModernButton}">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="Export" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Height="56" Margin="10 10 10 0" Command="{Binding ShowDemoModelCommand}" ToolTip="Demo-Modell anzeigen" Style="{DynamicResource ModernButton}">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="Demo-Modell" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    
+                    <!-- Theme Switcher Control -->
+                    <views:ThemeSelector Grid.Row="1" Margin="0,20,0,0"/>
+                </Grid>
             </Border>
             <!-- Vertical GridSplitter between 3D and right panel -->
             <GridSplitter Grid.Column="2" Width="5" HorizontalAlignment="Left" VerticalAlignment="Stretch" Background="{DynamicResource PanelBorderBrush}" ShowsPreview="True"/>
             <!-- Rechte Infoleiste -->
-            <Border Grid.Column="3" Margin="10,20,0,20" Style="{StaticResource ModernPanel}">
+            <Border Grid.Column="3" Margin="10,20,0,20" Style="{DynamicResource ModernPanel}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
                         <!-- Visualization Section -->
                         <TextBlock Text="📊 Visualizations" FontWeight="Bold" FontSize="18" Margin="10,10,10,5"/>
-                        <Button Style="{StaticResource VisualizationButton}" Command="{Binding OpenStatisticsSummaryCommand}">
+                        <Button Style="{DynamicResource VisualizationButton}" Command="{Binding OpenStatisticsSummaryCommand}">
                             <StackPanel>
                                 <TextBlock Text="Statistics Summary" FontWeight="SemiBold"/>
                                 <TextBlock Text="Overview of measurement results" FontSize="11" Opacity="0.7"/>
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource VisualizationButton}" Command="{Binding OpenPointDetailsCommand}">
+                        <Button Style="{DynamicResource VisualizationButton}" Command="{Binding OpenPointDetailsCommand}">
                             <StackPanel>
                                 <TextBlock Text="Individual Point Details" FontWeight="SemiBold"/>
                                 <TextBlock Text="Detailed view of each measurement point" FontSize="11" Opacity="0.7"/>
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource VisualizationButton}" Command="{Binding OpenToleranceAnalysisCommand}">
+                        <Button Style="{DynamicResource VisualizationButton}" Command="{Binding OpenToleranceAnalysisCommand}">
                             <StackPanel>
                                 <TextBlock Text="Tolerance Analysis" FontWeight="SemiBold"/>
                                 <TextBlock Text="Analysis of tolerance zones and deviations" FontSize="11" Opacity="0.7"/>
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource VisualizationButton}" Command="{Binding OpenSuccessFailureStatusCommand}">
+                        <Button Style="{DynamicResource VisualizationButton}" Command="{Binding OpenSuccessFailureStatusCommand}">
                             <StackPanel>
                                 <TextBlock Text="Success/Failure Status" FontWeight="SemiBold"/>
                                 <TextBlock Text="Overview of measurement status" FontSize="11" Opacity="0.7"/>
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource VisualizationButton}" Command="{Binding OpenDeviationMeasurementsCommand}">
+                        <Button Style="{DynamicResource VisualizationButton}" Command="{Binding OpenDeviationMeasurementsCommand}">
                             <StackPanel>
                                 <TextBlock Text="Deviation Measurements" FontWeight="SemiBold"/>
                                 <TextBlock Text="Analysis of measurement deviations" FontSize="11" Opacity="0.7"/>
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource VisualizationButton}" Command="{Binding OpenGraphsCommand}">
+                        <Button Style="{DynamicResource VisualizationButton}" Command="{Binding OpenGraphsCommand}">
                             <StackPanel>
                                 <TextBlock Text="Graphs" FontWeight="SemiBold"/>
                                 <TextBlock Text="Statistical graphs and charts" FontSize="11" Opacity="0.7"/>
@@ -118,39 +123,36 @@
 
                         <!-- Export Section -->
                         <TextBlock Text="📤 Export Reports" FontWeight="Bold" FontSize="18" Margin="10,20,10,5"/>
-                        <Button Style="{StaticResource ExportButton}" Command="{Binding ExportPdfReportCommand}">
+                        <Button Style="{DynamicResource ExportButton}" Command="{Binding ExportPdfReportCommand}">
                             <StackPanel>
                                 <TextBlock Text="PDF Report" FontWeight="SemiBold"/>
                                 <TextBlock Text="Professional report with tables and statistics" FontSize="11" Opacity="0.7"/>
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource ExportButton}" Command="{Binding ExportXmlDataCommand}">
+                        <Button Style="{DynamicResource ExportButton}" Command="{Binding ExportXmlDataCommand}">
                             <StackPanel>
                                 <TextBlock Text="XML Data Export" FontWeight="SemiBold"/>
                                 <TextBlock Text="Structured data export" FontSize="11" Opacity="0.7"/>
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource ExportButton}" Command="{Binding ExportCsvDataCommand}">
+                        <Button Style="{DynamicResource ExportButton}" Command="{Binding ExportCsvDataCommand}">
                             <StackPanel>
                                 <TextBlock Text="CSV Data Export" FontWeight="SemiBold"/>
                                 <TextBlock Text="Spreadsheet-compatible format" FontSize="11" Opacity="0.7"/>
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource ExportButton}" Command="{Binding ExportHtmlReportCommand}">
+                        <Button Style="{DynamicResource ExportButton}" Command="{Binding ExportHtmlReportCommand}">
                             <StackPanel>
                                 <TextBlock Text="HTML Report" FontWeight="SemiBold"/>
                                 <TextBlock Text="Interactive web-based report" FontSize="11" Opacity="0.7"/>
                             </StackPanel>
                         </Button>
 
-                        <!-- Selected Point Details -->
-                        <TextBlock Text="📌 Selected Point Details" FontWeight="Bold" FontSize="18" Margin="10,20,10,5"/>
-                        <TextBlock Text="{Binding SelectedPointInfo}" TextWrapping="Wrap" Margin="10"/>
                     </StackPanel>
                 </ScrollViewer>
             </Border>
             <!-- Central measurement panel -->
-            <Border Grid.Column="1" Margin="0,20,10,20" Style="{StaticResource ModernPanel}">
+            <Border Grid.Column="1" Margin="0,20,10,20" Style="{DynamicResource ModernPanel}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -164,7 +166,7 @@
 
                     <!-- Measurement TreeView -->
                     <TreeView Grid.Row="1" ItemsSource="{Binding Parts}" Margin="10" 
-                             Style="{StaticResource ModernTreeView}"
+                             Style="{DynamicResource ModernTreeView}"
                              x:Name="MeasurementTreeView"
                              SelectedItemChanged="MeasurementTreeView_SelectedItemChanged"
                              VirtualizingStackPanel.IsVirtualizing="True"
@@ -206,23 +208,6 @@
                                     <TextBlock Text="{Binding ToleranceRange, StringFormat=Toleranzbereich: {0}}"/>
                                 </StackPanel>
                             </DataTemplate>
-
-                            <!-- Compact Button Style -->
-                            <Style x:Key="CompactMeasureButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
-                                <Setter Property="Padding" Value="6,2"/>
-                                <Setter Property="Margin" Value="4,0,0,0"/>
-                                <Setter Property="MinHeight" Value="20"/>
-                                <Setter Property="Height" Value="20"/>
-                                <Setter Property="Background" Value="{DynamicResource SecondaryBackgroundBrush}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-                                <Setter Property="BorderThickness" Value="1"/>
-                                <Setter Property="FontSize" Value="11"/>
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="{DynamicResource AccentBackgroundBrush}"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
                         </TreeView.Resources>
 
                         <TreeView.ItemTemplate>
@@ -277,7 +262,7 @@
                                             <Button Grid.Column="3" 
                                                     Command="{Binding DataContext.MeasurePointCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
                                                     CommandParameter="{Binding}"
-                                                    Style="{StaticResource CompactMeasureButton}"
+                                                    Style="{DynamicResource CompactMeasureButton}"
                                                     Visibility="{Binding Status, Converter={StaticResource StatusToVisibilityConverter}}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock Text="▶" FontSize="9" Margin="0,0,3,0" VerticalAlignment="Center"/>

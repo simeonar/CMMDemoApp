@@ -63,6 +63,88 @@ Views/
 
 ## 🎨 UI-Komponenten
 
+### Themensystem
+- Vier spezialisierte visuelle Stile:
+  1. **Minimalist Scientific**: Klare, präzise, helle Oberfläche für wissenschaftliche Arbeit
+  2. **Industrial Professional**: Robuster, industrieller Stil für Fertigungsumgebungen
+  3. **Dark Technical**: Kontrastreicher, präzisionsorientierter Dark-Mode
+  4. **Modern Fluent**: Sauberes, modernes Design, inspiriert von Microsoft Fluent Design
+- ResourceDictionary-basierte Implementierung:
+  ```csharp
+  Themes/
+  ├── MinimalistScientificTheme.xaml   // Wissenschaftlicher Stil
+  ├── IndustrialProfessionalTheme.xaml // Industrieller Stil
+  ├── DarkTechnicalTheme.xaml          // Technischer Dark-Mode
+  └── ModernFluentTheme.xaml           // Fluent Design-Stil
+  ```
+- Dynamisches Theme-Switching zur Laufzeit:
+  ```csharp
+  Helpers/ThemeManager.cs              // Themenverwaltung und -wechsel
+  Views/ThemeSwitcherView.xaml         // UI für Themenwechsel mit Vorschau
+  ```
+- Visueller Styleguide mit Beispielkomponenten für jeden Stil
+
+## 🎨 Themensystem
+
+### Themenarchitektur
+```csharp
+Themes/
+├── MinimalistScientificTheme.xaml   // Minimalistisches, wissenschaftliches Design
+├── IndustrialProfessionalTheme.xaml // Robustes Industriedesign
+├── DarkTechnicalTheme.xaml          // Technisches Dunkeldesign
+└── ModernFluentTheme.xaml           // Modernes Fluent Design
+```
+
+- **ThemeManager**: Zentrales Management aller Themes
+  - Dynamisches Wechseln zur Laufzeit
+  - Ressourcen-Dictionary-basierte Implementierung
+  - Themekonstanz zwischen Anwendungsteilen
+
+### Theme-Stile
+- **Minimalist Scientific**: Klares, präzises Design für wissenschaftliche Arbeit
+  - Reduzierte visuelle Elemente
+  - Hohe Lesbarkeit und Fokus auf Daten
+  - Helle Farbpalette mit subtilen blauen Akzenten
+
+- **Industrial Professional**: Robustes Design für Fertigungsumgebungen
+  - Stark definierte Kontrollelemente
+  - Industrie-inspirierte Ästhetik
+  - Neutrale Farbpalette mit dunkelblauen Akzenten
+
+- **Dark Technical**: Hochkontrastiges dunkles Design für technische Arbeit
+  - Reduzierte Augenbelastung in dunklen Umgebungen
+  - Präzise visuelle Hierarchie
+  - Dunkle Farbpalette mit leuchtenden cyan und violetten Akzenten
+
+- **Modern Fluent**: Microsoft Fluent Design-inspiriertes UI
+  - Moderne, leichte Ästhetik
+  - Subtile Animationen und Übergänge
+  - Helle Farbpalette mit klassischen blauen Akzenten
+
+### Button-Varianten
+- Jedes Thema enthält mehrere Button-Stile:
+  - Standard-Buttons
+  - Akzent-Buttons für primäre Aktionen
+  - Umriss-Buttons für sekundäre Aktionen
+  - Kompakte Buttons für platzsparende Layouts
+
+### Implementierung
+- Verwendung von dynamischen Ressourcen für Theme-Wechsel ohne Neustart
+- Themenkonsistenz durch zentralisierte Farbdefinitionen
+- Visuelle Rückmeldung durch Hover- und Pressed-States
+
+```xaml
+<!-- Beispiel für einen Dark Technical Theme Button -->
+<Button Content="Technical Button"
+        Style="{StaticResource TechnicalButton}"
+        Margin="10,5,10,5"/>
+```
+
+```csharp
+// Theme-Wechsel im Code
+ThemeManager.ApplyTheme("Dark Technical");
+```
+
 ### Status-Anzeige
 - Zweistufige Fortschrittsanzeige:
   1. Aktueller Messpunkt (0-100%)

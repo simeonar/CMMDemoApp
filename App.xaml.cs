@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using CMMDemoApp.ViewModels;
 using CMMDemoApp.Services;
+using CMMDemoApp.Helpers;
 
 namespace CMMDemoApp;
 
@@ -22,6 +23,9 @@ public partial class App : System.Windows.Application
             
             // Initialize RenderOptions
             RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.Default;
+            
+            // Initialize default theme
+            ThemeManager.ApplyTheme("Modern Fluent");
             
             // Initialize IoC container and services
             ConfigureServices();

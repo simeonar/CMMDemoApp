@@ -18,7 +18,7 @@
         </Grid.RowDefinitions>
         
         <!-- Information Panel -->
-        <Border Grid.Row="0" Style="{StaticResource ModernPanel}" Margin="10,10,10,5">
+        <Border Grid.Row="0" Style="{DynamicResource ModernPanel}" Margin="10,10,10,5">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="🟧 " FontSize="20" VerticalAlignment="Center" Margin="5,0"/>
                 <TextBlock Text="{Binding ModelInfo}" FontSize="14" FontWeight="Medium" VerticalAlignment="Center" Margin="5,8"/>
@@ -69,12 +69,12 @@
         </Viewport3D>
         
         <!-- Controls Panel -->
-        <Border Grid.Row="2" Style="{StaticResource ModernPanel}" Margin="10,5,10,10">
+        <Border Grid.Row="2" Style="{DynamicResource ModernPanel}" Margin="10,5,10,10">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button Content="Reset View" Command="{Binding ResetViewCommand}" 
-                        Style="{StaticResource ModernButton}" Margin="5" Padding="10,5"/>
+                        Style="{DynamicResource ModernButton}" Margin="5" Padding="10,5"/>
                 <Button Content="Close" Command="{Binding CloseWindowCommand}"
-                        Style="{StaticResource ModernButton}" Margin="5" Padding="10,5"/>
+                        Style="{DynamicResource ModernButton}" Margin="5" Padding="10,5"/>
             </StackPanel>
         </Border>
     </Grid>

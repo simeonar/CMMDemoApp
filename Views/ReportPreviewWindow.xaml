@@ -23,7 +23,7 @@
         <!-- Options Panel -->
         <Border DockPanel.Dock="Right" 
                 Width="250" Margin="20,0,0,0"
-                Style="{StaticResource ModernPanel}">
+                Style="{DynamicResource ModernPanel}">
             <StackPanel Margin="10">
                 <TextBlock Text="Report Options" 
                          FontSize="18" FontWeight="Bold" 
@@ -49,18 +49,18 @@
 
                 <Button Content="Export Report" 
                         Command="{Binding ExportCommand}"
-                        Style="{StaticResource ModernButton}"
+                        Style="{DynamicResource ModernButton}"
                         Height="40" Margin="0,10"/>
                 
                 <Button Content="Cancel" 
                         Command="{Binding CancelCommand}"
-                        Style="{StaticResource ModernButton}"
+                        Style="{DynamicResource ModernButton}"
                         Height="40" Margin="0,10"/>
             </StackPanel>
         </Border>
 
         <!-- Preview Area -->
-        <Border Style="{StaticResource ModernPanel}">
+        <Border Style="{DynamicResource ModernPanel}">
             <ScrollViewer>
                 <ContentControl Content="{Binding PreviewContent}"/>
             </ScrollViewer>

@@ -27,7 +27,7 @@
 
         <!-- Content Area -->
         <Border Grid.Row="1" 
-                Style="{StaticResource ModernPanel}">
+                Style="{DynamicResource ModernPanel}">
             <ContentControl Content="{Binding VisualizationContent}"/>
         </Border>
     </Grid>

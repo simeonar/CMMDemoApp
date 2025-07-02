@@ -32,6 +32,12 @@ A modern WPF application for visualizing and analyzing Coordinate Measuring Mach
   - Currently selected measurement point
   - Live measurement progress
   - Adaptive visibility for measurement indicators
+- **Multiple UI Themes**: Four distinct visual styles:
+  - Minimalist Scientific - Clean, precise, light design for scientific work
+  - Industrial Professional - Robust, industrial feel for manufacturing
+  - Dark Technical - High contrast, precision-focused dark theme
+  - Modern Fluent - Clean, light, Microsoft Fluent Design inspired
+- **Theme Switching**: Real-time theme switching with visual style samples
 - **Report Preview**: Interactive preview for all export formats
 - **Modern UI**: Clean, modular interface with customizable layouts
 - **Status Indicators**: Visual feedback for measurement status
@@ -84,6 +90,8 @@ CMMDemoApp/
 ├── ViewModels/        # MVVM view models
 ├── Views/             # XAML views
 ├── Converters/        # Value converters
+├── Helpers/           # Utility classes
+├── Themes/            # UI themes and styles
 └── TestData/         # Sample data
 ```
 

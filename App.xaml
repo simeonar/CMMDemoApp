@@ -6,14 +6,25 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Themes/ModernColors.xaml" />
-                <ResourceDictionary Source="Resources/VisualizationStyles.xaml"/>
+                <!-- Base theme with common styles -->
+                <ResourceDictionary Source="Themes/TempBasicTheme.xaml" />
+                
+                <!-- Individual theme dictionaries - Theme Manager will handle switching at runtime -->
+                <!-- The first loaded theme will be the default until ThemeManager.ApplyTheme is called -->
+                <ResourceDictionary Source="Themes/ModernFluentTheme.xaml" />
+                
+                <!-- Other themes are included to ensure their resources are available -->
+                <!-- The Modern Fluent theme is the default, ThemeManager will handle switching between themes -->
+                <ResourceDictionary Source="Themes/MinimalistScientificTheme.xaml" />
+                <ResourceDictionary Source="Themes/IndustrialProfessionalTheme.xaml" />
+                <ResourceDictionary Source="Themes/DarkTechnicalTheme.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            
             
             <!-- Converters -->
             <converters:MeasurementStatusToBrushConverter x:Key="StatusToBrushConverter" />
             <converters:MeasurementStatusToVisibilityConverter x:Key="StatusToVisibilityConverter" />
+            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+            <converters:ProgressToWidthConverter x:Key="ProgressToWidthConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>
