@@ -72,10 +72,25 @@ Views/
   2. Annäherung und Berührung (30-40%)
   3. Messvorgang (40-80%)
   4. Rückzug und Datenverarbeitung (80-100%)
+- Synchronisierte Statusbar-Anzeige:
+  1. Automatische Aktualisierung basierend auf ausgewähltem Punkt
+  2. Live-Update von Name und Fortschritt während der Messung
+  3. Intelligente Nullwert-Behandlung und Sichtbarkeitssteuerung
 
 ```csharp
+// Verbesserte Auswahl und Synchronisation von Messpunkten
+partial void OnSelectedPointChanged(MeasurementPoint? value)
+{
+    // Aktualisierten Punkt als ausgewählt markieren
+    // Statusbar-Informationen synchronisieren
+    // Detailinformationen aktualisieren
+}
+
 private async Task SimulatePointMeasurementAsync(MeasurementPoint point)
 {
+    // Sicherstellen, dass der Punkt als ausgewählt markiert ist
+    SelectedPoint = point;
+    
     // Bewegung zum Punkt (0-30%)
     // Annäherung (30-40%)
     // Messung (40-80%)
@@ -119,6 +134,22 @@ private void UpdateOverallProgress()
   - Completed
   - Failed
 - Automatische UI-Aktualisierung bei Statusänderungen
+- Bidirektionale Synchronisation zwischen Auswahl und Status:
+  - TreeView-Selektion aktualisiert ViewModel-Property
+  - ViewModel-Property aktualisiert Statusbar
+  - Status-Updates während Messung aktualisieren alle UI-Elemente
+
+```csharp
+// TreeView-Auswahl-Ereignisbehandlung
+private void MeasurementTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+{
+    if (e.NewValue is MeasurementPoint point && viewModel != null)
+    {
+        // ViewModel über Auswahländerung informieren
+        viewModel.SelectedPoint = point;
+    }
+}
+```
 
 ## 🛠 Technische Besonderheiten
 
@@ -158,6 +189,24 @@ await Task.Delay(_random.Next(75, 125));  // Messvorgang
 - Farbkodierung für verschiedene Status
 - Fortschrittsbalken mit Prozentanzeige
 - Tooltip mit detaillierten Informationen
+- Intelligente Statusbar mit NullToVisibilityConverter:
+  - Konvertiert null-Werte in Visibility.Collapsed
+  - Zeigt geeignete Platzhalter für nicht ausgewählte Punkte
+  - Dynamische Aktualisierung während Messvorgang
+
+```xaml
+<!-- Verbesserte Statusbar mit Null-Wert-Behandlung -->
+<StatusBarItem MinWidth="300">
+    <StackPanel Orientation="Horizontal">
+        <TextBlock Text="Status: "/>
+        <TextBlock Text="{Binding SelectedPoint.Name, TargetNullValue='No point selected'}" ... />
+        <ProgressBar Value="{Binding SelectedPoint.MeasurementProgress}" ... 
+                     Visibility="{Binding SelectedPoint, Converter={StaticResource NullToVisibilityConverter}}"/>
+        <TextBlock Text="{Binding SelectedPoint.MeasurementProgress, StringFormat={}{0:F0}%, TargetNullValue=''}" ... 
+                   Visibility="{Binding SelectedPoint, Converter={StaticResource NullToVisibilityConverter}}"/>
+    </StackPanel>
+</StatusBarItem>
+```
 
 ### Messwert-Darstellung
 - Tabellarische Übersicht

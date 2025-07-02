@@ -28,6 +28,10 @@ A modern WPF application for visualizing and analyzing Coordinate Measuring Mach
   - Success/Failure Status overview
   - Deviation Measurements analysis
   - Statistical Graphs and trends
+- **Reactive Status Bar**: Real-time progress monitoring with synchronized display of:
+  - Currently selected measurement point
+  - Live measurement progress
+  - Adaptive visibility for measurement indicators
 - **Report Preview**: Interactive preview for all export formats
 - **Modern UI**: Clean, modular interface with customizable layouts
 - **Status Indicators**: Visual feedback for measurement status
@@ -109,6 +113,10 @@ Eine moderne WPF-Anwendung zur Visualisierung und Analyse von Koordinatenmessmas
   - Erfolgs-/Fehler-Statusübersicht
   - Abweichungsmessungsanalyse
   - Statistische Graphen und Trends
+- **Reaktive Statusleiste**: Echtzeit-Fortschrittsüberwachung mit synchronisierter Anzeige von:
+  - Aktuell ausgewähltem Messpunkt
+  - Live-Messfortschritt
+  - Adaptive Sichtbarkeit für Messindikatoren
 - **Berichtvorschau**: Interaktive Vorschau für alle Exportformate
 - **Moderne Benutzeroberfläche**: Klare, modulare Oberfläche
 - **Statusindikatoren**: Visuelle Rückmeldung zum Messstatus
