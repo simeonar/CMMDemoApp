@@ -1,64 +1,42 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 
 namespace CMMDemoApp.Helpers
 {
-    public class ThemeManager
+    public static class ThemeManager
     {
+        private static ResourceDictionary? _currentThemeDictionary;
+
         // Dictionary containing themes with their display names and resource paths
         public static readonly Dictionary<string, string> AvailableThemes = new Dictionary<string, string>
         {
+            { "Modern Fluent", "/Themes/ModernFluentTheme.xaml" },
             { "Minimalist Scientific", "/Themes/MinimalistScientificTheme.xaml" },
             { "Industrial Professional", "/Themes/IndustrialProfessionalTheme.xaml" },
-            { "Dark Technical", "/Themes/DarkTechnicalTheme.xaml" },
-            { "Modern Fluent", "/Themes/ModernFluentTheme.xaml" }
+            { "Dark Technical", "/Themes/DarkTechnicalTheme.xaml" }
         };
-
-        private static ResourceDictionary? _currentTheme;
 
         // Apply the selected theme to the application
         public static void ApplyTheme(string themeName)
         {
-            try
+            if (!AvailableThemes.TryGetValue(themeName, out var themePath))
             {
-                if (!AvailableThemes.ContainsKey(themeName))
-                {
-                    return;
-                }
-
-                var themePath = AvailableThemes[themeName];
-                
-                var resourceDict = new ResourceDictionary
-                {
-                    Source = new Uri(themePath, UriKind.Relative)
-                };
-
-                // Remove current theme if exists
-                if (_currentTheme != null && Application.Current.Resources.MergedDictionaries.Contains(_currentTheme))
-                {
-                    Application.Current.Resources.MergedDictionaries.Remove(_currentTheme);
-                }
-
-                // Add new theme
-                Application.Current.Resources.MergedDictionaries.Add(resourceDict);
-                _currentTheme = resourceDict;
-                
-                // Force UI refresh for all windows
-                foreach (Window window in Application.Current.Windows)
-                {
-                    // Trigger update of DynamicResource references
-                    var temp = window.Resources;
-                    
-                    // Force re-evaluation of styles and templates
-                    window.UpdateLayout();
-                }
+                return;
             }
-            catch (Exception ex)
+
+            var newThemeDict = new ResourceDictionary { Source = new Uri(themePath, UriKind.Relative) };
+
+            // Remove the current theme dictionary if it exists
+            if (_currentThemeDictionary != null)
             {
-                // Silent error handling for production
-                System.Diagnostics.Debug.WriteLine($"Error applying theme: {ex.Message}");
+                Application.Current.Resources.MergedDictionaries.Remove(_currentThemeDictionary);
             }
+
+            // Add the new theme dictionary and update the reference
+            Application.Current.Resources.MergedDictionaries.Add(newThemeDict);
+            _currentThemeDictionary = newThemeDict;
         }
     }
 }

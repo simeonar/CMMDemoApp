@@ -1,6 +1,8 @@
 using System.Windows;
 using System.Windows.Controls;
 using CMMDemoApp.Helpers;
+using CMMDemoApp.ViewModels;
+using CommunityToolkit.Mvvm.DependencyInjection;
 
 namespace CMMDemoApp.Views
 {
@@ -9,31 +11,7 @@ namespace CMMDemoApp.Views
         public ThemeSelector()
         {
             InitializeComponent();
-            Loaded += ThemeSelector_Loaded;
-        }
-
-        private void ThemeSelector_Loaded(object sender, RoutedEventArgs e)
-        {
-            // Set Modern Fluent as default
-            ThemeComboBox.SelectedIndex = 0;
-            ApplySelectedTheme();
-        }
-
-        private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ApplySelectedTheme();
-        }
-
-        private void ApplySelectedTheme()
-        {
-            if (ThemeComboBox.SelectedItem is ComboBoxItem selectedItem)
-            {
-                string? themeName = selectedItem.Tag as string ?? selectedItem.Content as string;
-                if (!string.IsNullOrEmpty(themeName))
-                {
-                    ThemeManager.ApplyTheme(themeName);
-                }
-            }
+            DataContext = Ioc.Default.GetRequiredService<ThemeSelectorViewModel>();
         }
     }
 }
