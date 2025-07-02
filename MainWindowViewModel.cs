@@ -195,10 +195,21 @@ public partial class MainWindowViewModel : ObservableObject
             // Clear existing data
             Parts.Clear();
 
-            // Use the project root directory directly
-            var projectDir = @"c:\Users\arshy\source\repos\CMMDemoApp";
-            var part1Path = Path.Combine(projectDir, "TestData", "input_data", "part001_expected.xml");
-            var part2Path = Path.Combine(projectDir, "TestData", "input_data", "part002_expected.xml");
+            // Find the TestData directory dynamically
+            var testDataDir = FindTestDataDirectory();
+            if (testDataDir == null)
+            {
+                throw new DirectoryNotFoundException("TestData directory not found. Please ensure the TestData folder exists in or near the application directory.");
+            }
+
+            var inputDataDir = Path.Combine(testDataDir, "input_data");
+            if (!Directory.Exists(inputDataDir))
+            {
+                throw new DirectoryNotFoundException($"Input data directory not found at: {inputDataDir}");
+            }
+
+            var part1Path = Path.Combine(inputDataDir, "part001_expected.xml");
+            var part2Path = Path.Combine(inputDataDir, "part002_expected.xml");
 
             Debug.WriteLine($"Loading demo data from:\n{part1Path}\n{part2Path}");
 
@@ -252,18 +263,6 @@ public partial class MainWindowViewModel : ObservableObject
         // Initialize visualization commands
         OpenStatisticsSummaryCommand = new RelayCommand(OpenStatisticsSummary);
         OpenPointDetailsCommand = new RelayCommand(OpenPointDetails);
-        _reportingService = reportingService;
-
-        LoadModelCommand = new AsyncRelayCommand(LoadModel);
-        StartMeasurementCommand = new AsyncRelayCommand(StartMeasurementAsync);
-        ExportReportCommand = new RelayCommand(() => ExportReport(ReportFormat.PDF));
-        ShowDemoModelCommand = new RelayCommand(ShowDemoModel);
-        MeasurePointCommand = new AsyncRelayCommand<MeasurementPoint>(MeasurePointAsync);
-        ExpandAllCommand = new RelayCommand(ExpandAll);
-        CollapseAllCommand = new RelayCommand(CollapseAll);
-        
-        OpenStatisticsSummaryCommand = new RelayCommand(OpenStatisticsSummary);
-        OpenPointDetailsCommand = new RelayCommand(OpenPointDetails);
         OpenToleranceAnalysisCommand = new RelayCommand(OpenToleranceAnalysis);
         OpenSuccessFailureStatusCommand = new RelayCommand(OpenSuccessFailureStatus);
         OpenDeviationMeasurementsCommand = new RelayCommand(OpenDeviationMeasurements);
@@ -275,18 +274,26 @@ public partial class MainWindowViewModel : ObservableObject
         ExportCsvDataCommand = new RelayCommand(() => ExportReport(ReportFormat.CSV));
         ExportHtmlReportCommand = new RelayCommand(() => ExportReport(ReportFormat.HTML));
         
-
+        // Initialize ExportReportCommand
+        ExportReportCommand = new RelayCommand(() => ExportReport(ReportFormat.PDF));
     }
 
     private async Task LoadModel()
     {
         try
         {
+            // Find the TestData directory dynamically
+            var testDataDir = FindTestDataDirectory();
+            var initialDirectory = testDataDir != null 
+                ? Path.Combine(testDataDir, "input_data") 
+                : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+            // Create dialog to open file
             var dialog = new Microsoft.Win32.OpenFileDialog
             {
                 Title = "Load Model or Measurement Data",
                 Filter = "All Supported Files|*.xml;*.stl|XML Measurement Data|*.xml|STL Models|*.stl",
-                InitialDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestData", "input_data")
+                InitialDirectory = initialDirectory
             };
 
             if (dialog.ShowDialog() == true)
@@ -459,7 +466,29 @@ public partial class MainWindowViewModel : ObservableObject
     {
         try
         {
-            var part = await _measurementService.LoadExpectedDataAsync(@"TestData\input_data\part001_expected.xml");
+            // Find the TestData directory dynamically
+            var testDataDir = FindTestDataDirectory();
+            if (testDataDir == null)
+            {
+                Debug.WriteLine("TestData directory not found. Skipping initial data load.");
+                return;
+            }
+
+            var inputDataDir = Path.Combine(testDataDir, "input_data");
+            if (!Directory.Exists(inputDataDir))
+            {
+                Debug.WriteLine($"Input data directory not found at: {inputDataDir}");
+                return;
+            }
+
+            var partPath = Path.Combine(inputDataDir, "part001_expected.xml");
+            if (!File.Exists(partPath))
+            {
+                Debug.WriteLine($"Initial data file not found at: {partPath}");
+                return;
+            }
+
+            var part = await _measurementService.LoadExpectedDataAsync(partPath);
             if (part != null)
             {
                 Parts.Add(part);
@@ -735,5 +764,79 @@ public partial class MainWindowViewModel : ObservableObject
         window.Show();
     }
 
+    /// <summary>
+    /// Finds the path to the TestData directory by searching in common locations relative to the application
+    /// </summary>
+    /// <returns>The full path to the TestData directory if found, otherwise null</returns>
+    private string? FindTestDataDirectory()
+    {
+        // Possible locations to check for TestData directory
+        var possibleLocations = new List<string>
+        {
+            // 1. Check relative to the executing assembly location (bin folder)
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestData"),
+            
+            // 2. Check in the parent directory of the executing assembly (up from bin/Debug)
+            Path.Combine(Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory)!, "TestData"),
+            
+            // 3. Check two levels up (project root if running from bin/Debug/net*)
+            Path.Combine(Path.GetDirectoryName(Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory)!)!, "TestData"),
+            
+            // 4. Check three levels up (solution root if deep in project structure)
+            Path.Combine(Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory)!)!)!, "TestData")
+        };
+
+        // Check each location
+        foreach (var location in possibleLocations)
+        {
+            if (Directory.Exists(location))
+            {
+                Debug.WriteLine($"Found TestData directory at: {location}");
+                return location;
+            }
+        }
+
+        // If not found in standard locations, search nearby directories
+        try
+        {
+            // Start with application directory
+            var currentDir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            
+            // Check up to 4 levels up from current directory
+            for (int i = 0; i < 4; i++)
+            {
+                if (currentDir == null) break;
+                
+                // Look for TestData directory
+                var testDataDir = Path.Combine(currentDir.FullName, "TestData");
+                if (Directory.Exists(testDataDir))
+                {
+                    Debug.WriteLine($"Found TestData directory at: {testDataDir}");
+                    return testDataDir;
+                }
+                
+                // Also search one level of subdirectories
+                foreach (var subDir in currentDir.GetDirectories())
+                {
+                    testDataDir = Path.Combine(subDir.FullName, "TestData");
+                    if (Directory.Exists(testDataDir))
+                    {
+                        Debug.WriteLine($"Found TestData directory at: {testDataDir}");
+                        return testDataDir;
+                    }
+                }
+                
+                // Move up one directory
+                currentDir = currentDir.Parent;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error searching for TestData directory: {ex.Message}");
+        }
+
+        Debug.WriteLine("TestData directory not found");
+        return null;
+    }
 
 }
