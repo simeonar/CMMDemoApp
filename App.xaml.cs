@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using CMMDemoApp.ViewModels;
 using CMMDemoApp.Services;
 using CMMDemoApp.Helpers;
+using System.Diagnostics;
 
 namespace CMMDemoApp;
 
@@ -23,31 +24,54 @@ public partial class App : System.Windows.Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
-        base.OnStartup(e);
+        try
+        {
+            base.OnStartup(e);
 
-        // Initialize RenderOptions for better performance
-        RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.Default;
+            // Initialize RenderOptions for better performance
+            RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.Default;
 
-        // Apply the default theme at startup
-        ThemeManager.ApplyTheme("Modern Fluent");
+            Debug.WriteLine("[App] Starting application...");
 
-        // Show the main window
-        var mainWindow = Ioc.Default.GetRequiredService<MainWindow>();
-        mainWindow.Show();
+            // Show the main window
+            var mainWindow = Ioc.Default.GetRequiredService<MainWindow>();
+            mainWindow.Show();
+
+            Debug.WriteLine("[App] Main window created and shown");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[App] Error during startup: {ex.Message}");
+            Debug.WriteLine($"[App] Stack trace: {ex.StackTrace}");
+            MessageBox.Show($"Application startup error: {ex.Message}", "Startup Error", 
+                          MessageBoxButton.OK, MessageBoxImage.Error);
+            Current.Shutdown();
+        }
     }
 
     private void ConfigureServices()
     {
-        // Setup dependency injection
-        Ioc.Default.ConfigureServices(
-            new ServiceCollection()
+        try
+        {
+            Debug.WriteLine("[App] Configuring services...");
+            // Setup dependency injection
+            var services = new ServiceCollection()
                 .AddSingleton<IMeasurementService, MeasurementService>()
                 .AddSingleton<IMeasurementSimulationService, MeasurementSimulationService>()
                 .AddSingleton<IReportingService, ReportingService>()
                 .AddSingleton<MainWindowViewModel>()
                 .AddSingleton<ThemeSelectorViewModel>()
-                .AddSingleton<MainWindow>()
-                .BuildServiceProvider()
-        );
+                .AddSingleton<MainWindow>();
+
+            var serviceProvider = services.BuildServiceProvider();
+            Ioc.Default.ConfigureServices(serviceProvider);
+            Debug.WriteLine("[App] Services configured successfully");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[App] Error configuring services: {ex.Message}");
+            Debug.WriteLine($"[App] Stack trace: {ex.StackTrace}");
+            throw; // Re-throw to be caught in OnStartup
+        }
     }
 }

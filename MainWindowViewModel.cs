@@ -35,6 +35,8 @@ namespace CMMDemoApp;
 /// </summary>
 public partial class MainWindowViewModel : ObservableObject
 {
+    private readonly DispatcherTimer _timer;
+
     [ObservableProperty]
     private string selectedPointInfo = "Wählen Sie einen Punkt für Details...";
 
@@ -251,6 +253,14 @@ public partial class MainWindowViewModel : ObservableObject
         _measurementService = measurementService ?? throw new ArgumentNullException(nameof(measurementService));
         _simulationService = simulationService ?? throw new ArgumentNullException(nameof(simulationService));
         _reportingService = reportingService ?? throw new ArgumentNullException(nameof(reportingService));
+
+        // Initialize timer for clock updates
+        _timer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(1)
+        };
+        _timer.Tick += (s, e) => SetProperty(ref _now, DateTime.Now);
+        _timer.Start();
         
         // Initialize commands
         LoadModelCommand = new AsyncRelayCommand(LoadModel);
@@ -839,4 +849,10 @@ public partial class MainWindowViewModel : ObservableObject
         return null;
     }
 
+    private DateTime _now = DateTime.Now;
+    public DateTime Now
+    {
+        get => _now;
+        private set => SetProperty(ref _now, value);
+    }
 }

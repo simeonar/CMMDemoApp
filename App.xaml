@@ -8,9 +8,6 @@
             <ResourceDictionary.MergedDictionaries>
                 <!-- Base theme with common styles -->
                 <ResourceDictionary Source="Themes/TempBasicTheme.xaml" />
-                
-                <!-- The first loaded theme will be the default until ThemeManager.ApplyTheme is called -->
-                <ResourceDictionary Source="Themes/ModernFluentTheme.xaml" />
             </ResourceDictionary.MergedDictionaries>
             
             <!-- Converters -->

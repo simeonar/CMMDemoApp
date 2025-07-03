@@ -4,6 +4,7 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CMMDemoApp.Helpers;
+using System.Windows;
 
 namespace CMMDemoApp.ViewModels
 {
@@ -14,14 +15,18 @@ namespace CMMDemoApp.ViewModels
 
         public ThemeSelectorViewModel()
         {
-            Themes = new List<string>
+            Debug.WriteLine("[ThemeSelectorViewModel] Initializing...");
+            try
             {
-                "Modern Fluent",
-                "Minimalist Scientific",
-                "Industrial Professional",
-                "Dark Technical"
-            };
-            SelectedTheme = Themes.FirstOrDefault();
+                Themes = ThemeManager.AvailableThemes.Keys.ToList();
+                SelectedTheme = Themes.FirstOrDefault();
+                Debug.WriteLine($"[ThemeSelectorViewModel] Loaded {Themes.Count} themes, selected: {SelectedTheme}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[ThemeSelectorViewModel] Error initializing: {ex.Message}");
+                Themes = new List<string>();
+            }
         }
 
         public List<string> Themes { get; }
@@ -37,10 +42,21 @@ namespace CMMDemoApp.ViewModels
 
         partial void OnSelectedThemeChanged(string? value)
         {
-            Debug.WriteLine($"[ThemeSelectorViewModel] OnSelectedThemeChanged called with value: {value}");
-            if (!string.IsNullOrEmpty(value))
+            if (string.IsNullOrEmpty(value))
             {
+                Debug.WriteLine("[ThemeSelectorViewModel] OnSelectedThemeChanged: value is null or empty");
+                return;
+            }
+
+            try
+            {
+                Debug.WriteLine($"[ThemeSelectorViewModel] Applying theme: {value}");
                 ThemeManager.ApplyTheme(value);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[ThemeSelectorViewModel] Error applying theme: {ex.Message}");
+                MessageBox.Show($"Error applying theme: {ex.Message}", "Theme Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
