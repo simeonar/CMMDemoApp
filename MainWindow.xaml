@@ -85,6 +85,12 @@
                                 <TextBlock Text="Demo-Modell" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimaryBrush}"/>
                             </StackPanel>
                         </Button>
+                        <Button Height="56" Margin="10,5,10,10" Command="{Binding OpenSettingsCommand}" ToolTip="Einstellungen öffnen" Style="{DynamicResource ModernButton}">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="⚙️" FontSize="20" Margin="0,0,10,0" VerticalAlignment="Center" Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBlock Text="Einstellungen" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                     
                     <!-- Theme Switcher Control -->

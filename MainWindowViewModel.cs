@@ -855,4 +855,11 @@ public partial class MainWindowViewModel : ObservableObject
         get => _now;
         private set => SetProperty(ref _now, value);
     }
+
+    [RelayCommand]
+    private void OpenSettings()
+    {
+        var settingsWindow = new SettingsWindow();
+        settingsWindow.ShowDialog();
+    }
 }
