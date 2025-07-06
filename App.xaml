@@ -2,19 +2,5 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:CMMDemoApp"
-             xmlns:converters="clr-namespace:CMMDemoApp.Converters">
-    <Application.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <!-- Base theme with common styles -->
-                <ResourceDictionary Source="Themes/TempBasicTheme.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-            
-            <!-- Converters -->
-            <converters:MeasurementStatusToBrushConverter x:Key="StatusToBrushConverter" />
-            <converters:MeasurementStatusToVisibilityConverter x:Key="StatusToVisibilityConverter" />
-            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
-            <converters:ProgressToWidthConverter x:Key="ProgressToWidthConverter" />
-        </ResourceDictionary>
-    </Application.Resources>
+             StartupUri="Views/MainView.xaml">
 </Application>
