@@ -16,13 +16,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Converters\" />
     <Folder Include="Helpers\" />
     <Folder Include="Models\" />
     <Folder Include="Resources\" />
     <Folder Include="Services\" />
     <Folder Include="Themes\" />
-    <Folder Include="ViewModels\" />
   </ItemGroup>
 
 </Project>

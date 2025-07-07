@@ -1,0 +1,27 @@
+﻿<UserControl x:Class="CMMDemoApp.Views.Panels.PropertiesPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CMMDemoApp.Views.Panels"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <TabControl Margin="4" Height="200">
+            <TabItem Header="General">
+                <StackPanel Margin="8">
+                    <TextBlock Text="Name:" />
+                    <TextBox Text="Feature A"/>
+                    <TextBlock Text="Type:" Margin="0,8,0,0"/>
+                    <ComboBox>
+                        <ComboBoxItem Content="Plane"/>
+                        <ComboBoxItem Content="Cylinder"/>
+                    </ComboBox>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Advanced">
+                <TextBlock Text="Advanced settings..." Margin="8"/>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>
