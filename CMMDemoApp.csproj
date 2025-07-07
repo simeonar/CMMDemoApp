@@ -10,6 +10,7 @@
   <ItemGroup>
     <None Remove="Editor\index.html" />
     <None Remove="Editor\model.glb" />
+    <None Remove="Editor\models\mitutoyo.gltf" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,6 +18,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Editor\model.glb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Editor\models\mitutoyo.gltf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
