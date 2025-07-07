@@ -7,7 +7,7 @@ using System.Windows;
 namespace CMMDemoApp.Views.Panels
 {
     /// <summary>
-    /// Логика для WebView.xaml
+    /// Logik für WebView.xaml
     /// </summary>
     public partial class WebView : UserControl
     {

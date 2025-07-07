@@ -13,18 +13,12 @@
     </Window.Resources>
 
     <Grid>
-        <StatusBar Height="20"
-                   VerticalAlignment="Bottom">
-            <StatusBarItem>
-                <TextBlock Text="Test"/>
-            </StatusBarItem>
-        </StatusBar>
         <!-- 1. DockPanel im Hintergrund (unterste Ebene) -->
         <DockPanel Opacity="0.9"
-                   Height="86"
                    Background="AliceBlue"
                    VerticalAlignment="Top"
-                   Panel.ZIndex="0">
+                   Panel.ZIndex="0" 
+                   Height="121">
             <local:TopMenuControl x:Name="TopMenu"/>
         </DockPanel>
 
@@ -52,7 +46,7 @@
             </Button.ContextMenu>
         </Button>
 
-        <Border BorderBrush="Black" BorderThickness="1" Margin="0,92,0,0">
+        <Border BorderBrush="Black" BorderThickness="1" Margin="0,124,0,0">
             <!-- 2. Hauptarbeitsbereich -->
             <Grid x:Name="MainLayout">
                 <Grid.ColumnDefinitions>
