@@ -4,16 +4,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainView" Height="800" Width="1200">
     <Grid>
-        <!-- 1. DockPanel на фоне (нижний слой) -->
+        <!-- 1. DockPanel im Hintergrund (unterste Ebene) -->
         <DockPanel Opacity="0.9"
                    Height="86"
                    Background="AliceBlue"
                    VerticalAlignment="Top"
                    Panel.ZIndex="0">
-            <!-- Можно добавить элементы, если нужно -->
+            <!-- Elemente können hier hinzugefügt werden, falls benötigt -->
         </DockPanel>
 
-        <!-- 2. TabControl поверх DockPanel -->
+        <!-- 2. TabControl über dem DockPanel -->
         <TabControl Panel.ZIndex="1"
                     Height="88"
                     TabStripPlacement="Top"
@@ -23,24 +23,24 @@
                     Padding="0">
             <TabItem Header="Home" Margin="42,-2,-46,1">
                 <Grid Background="#F0F0F0">
-                    <!-- или цвет как у фона вкладки -->
+                    <!-- oder gleiche Farbe wie der Tab-Hintergrund -->
                     <Border Background="#F0F0F0" BorderBrush="#D0D0D0" BorderThickness="0,0,0,1">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
-                            <!-- Высота панели -->
+                            <!-- Höhe des Panels -->
 
-                            <!-- Кнопка 1 -->
-                            <Button Content="Rules Editor"
+                            <!-- Schaltfläche 1 -->
+                            <Button Content="Regeln Editor"
                         Background="#E5EDF7"
                         BorderThickness="0"
                         Width="130"
                         FontWeight="Bold"
                         Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Height="66" HorizontalAlignment="Left"/>
 
-                            <!-- Вертикальный разделитель -->
+                            <!-- Vertikaler Trenner -->
                             <Separator Width="1" Margin="0,10" Background="Gray"/>
 
-                            <!-- Кнопка 2 -->
-                            <Button Content="Design Model"
+                            <!-- Schaltfläche 2 -->
+                            <Button Content="Design Modell"
                         Background="#E5EDF7"
                         BorderThickness="0"
                         Width="130"
@@ -49,7 +49,7 @@
 
                             <Separator Width="1" Margin="0,10" Background="Gray" />
 
-                            <!-- Кнопка 3 -->
+                            <!-- Schaltfläche 3 -->
                             <Button Content="CRT-A5776-SP25"
                         Background="#E5EDF7"
                         BorderThickness="0"
@@ -59,8 +59,8 @@
 
                             <Separator Width="1" Margin="0,10" Background="Gray" />
 
-                            <!-- Кнопка 4 -->
-                            <Button Content="Part"
+                            <!-- Schaltfläche 4 -->
+                            <Button Content="Teil"
                         Background="#E5EDF7"
                         BorderThickness="0"
                         Width="100"
@@ -71,16 +71,16 @@
                 </Grid>
             </TabItem>
 
-            <TabItem Header="View" Margin="47,-2,-52,2">
+            <TabItem Header="Ansicht" Margin="47,-2,-52,2">
                 <StackPanel>
-                    <CheckBox Content="Properties View" IsChecked="{Binding IsLeftPanelVisible}"/>
-                    <CheckBox Content="Left Panel" IsChecked="{Binding IsLeftPanelVisible, Mode=TwoWay}" />
+                    <CheckBox Content="Eigenschaften Ansicht" IsChecked="{Binding IsLeftPanelVisible}"/>
+                    <CheckBox Content="Linkes Panel" IsChecked="{Binding IsLeftPanelVisible, Mode=TwoWay}" />
 
                 </StackPanel>
             </TabItem>
         </TabControl>
 
-        <!-- 3. Кнопка поверх всего -->
+        <!-- 3. Schaltfläche über allem -->
         <Button Content="▼"
                 Width="42"
                 Height="24"
@@ -95,53 +95,54 @@
                 ContextMenuService.IsEnabled="True">
             <Button.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Open Project" />
-                    <MenuItem Header="Import CAD" />
+                    <MenuItem Header="Projekt öffnen" />
+                    <MenuItem Header="CAD importieren" />
                     <Separator />
-                    <MenuItem Header="Exit" />
+                    <MenuItem Header="Beenden" />
                 </ContextMenu>
             </Button.ContextMenu>
         </Button>
 
         <Border BorderBrush="Black" BorderThickness="1" Margin="0,92,0,0">
-            <!-- 2. Основная рабочая область -->
+            <!-- 2. Hauptarbeitsbereich -->
             <Grid x:Name="MainLayout">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="32" />
-                    <!-- Левая вкладочная панель -->
+                    <!-- Linkes Tab-Panel -->
                     <ColumnDefinition Width="200" x:Name="LeftContentColumn"/>
-                    <!-- Панель с контентом -->
+                    <!-- Panel mit Inhalt -->
                     <ColumnDefinition x:Name="CenterColumn" Width="*" />
+                    <!-- Rechtes Tab-Panel -->
                     <ColumnDefinition x:Name="RightColumn" Width="200"/>
                 </Grid.ColumnDefinitions>
-                <!-- 🧭 Вертикальные вкладки -->
+                <!-- 🧭 Vertikale Tabs -->
                 <ListBox x:Name="PanelSelector"
                          Grid.Column="0"
                          SelectionChanged="PanelSelector_SelectionChanged"
                          Background="#f0f0f0"
                          BorderThickness="0">
                     <ListBoxItem Tag="Features" Content="📄" ToolTip="Features" />
-                    <ListBoxItem Tag="Rules" Content="🧩" ToolTip="Rules Editor" />
-                    <ListBoxItem Tag="Inspection" Content="🛠" ToolTip="Inspection Setup" />
+                    <ListBoxItem Tag="Rules" Content="🧩" ToolTip="Regeln Editor" />
+                    <ListBoxItem Tag="Inspection" Content="🛠" ToolTip="Inspektionssetup" />
                 </ListBox>
 
-                <!-- 📄 Левая панель -->
-                <!-- Левая панель: делим на 2 окна -->
+                <!-- 📄 Linkes Panel -->
+                <!-- Linkes Panel: in 2 Fenster aufteilen -->
                 <ContentControl Grid.Column="1" Margin="0" ClipToBounds="True">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
-                            <!-- Верхняя часть -->
+                            <!-- Oberer Bereich -->
                             <RowDefinition Height="Auto" />
-                            <!-- Разделитель -->
+                            <!-- Trenner -->
                             <RowDefinition Height="250" />
-                            <!-- Нижняя часть (фиксированная или ресайз) -->
+                            <!-- Unterer Bereich (fixiert oder veränderbar) -->
                         </Grid.RowDefinitions>
 
-                        <!-- 🧱 Верхнее окно -->
+                        <!-- 🧱 Oberes Fenster -->
                         <ContentControl Grid.Row="0" x:Name="LeftUpperPanel" />
 
-                        <!-- ➖ Разделитель -->
+                        <!-- ➖ Trenner -->
                         <GridSplitter Grid.Row="1"
                                       Height="5"
                                       HorizontalAlignment="Stretch"
@@ -150,7 +151,7 @@
                                       ResizeDirection="Rows"
                                       ShowsPreview="True" />
 
-                        <!-- 🧩 Нижнее окно -->
+                        <!-- 🧩 Unteres Fenster -->
                         <ContentControl Grid.Row="2" x:Name="LeftLowerPanel" />
                     </Grid>
                 </ContentControl>
@@ -163,14 +164,14 @@
                               Background="#DDD"
                               ShowsPreview="True" />
 
-                <!-- 🧊 Центр — 3D View -->
+                <!-- 🧊 Mitte — 3D-Ansicht -->
                 <Border Grid.Column="2" Background="Black">
                     <TextBlock Text="3D Viewer"
                                Foreground="White"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
                                FontSize="20"/>
-                    <!-- Тут может быть WebView2 / Babylon.js / HelixViewport3D -->
+                    <!-- Hier kann WebView2 / Babylon.js / HelixViewport3D sein -->
                 </Border>
 
                 <GridSplitter Grid.Column="2"
@@ -180,7 +181,7 @@
                               Background="#DDD"
                               ShowsPreview="True" />
 
-                <!-- 🧩 Правая панель -->
+                <!-- 🧩 Rechtes Panel -->
                 <Border Grid.Column="3" 
                         Background="#F8F8F8" 
                         BorderBrush="#CCC" 

@@ -7,23 +7,23 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <DockPanel Background="White">
-        <!-- ToolBar сверху -->
+        <!-- ToolBar oben -->
         <ToolBar DockPanel.Dock="Top">
-            <Button Content="Select All"/>
-            <Button Content="Refresh"/>
+            <Button Content="Alles auswählen"/>
+            <Button Content="Aktualisieren"/>
         </ToolBar>
 
-        <!-- Нижний TabControl -->
+        <!-- Unterer TabControl -->
         <TabControl DockPanel.Dock="Bottom" Height="28">
-            <TabItem Header="Tree"/>
-            <TabItem Header="Flat List"/>
+            <TabItem Header="Baum"/>
+            <TabItem Header="Flache Liste"/>
         </TabControl>
 
-        <!-- Основное содержимое -->
+        <!-- Hauptinhalt -->
         <ListBox Margin="4">
-            <ListBoxItem>94190 ▸ Flatness</ListBoxItem>
-            <ListBoxItem>93630 ▸ Hole Ø10</ListBoxItem>
-            <ListBoxItem>93103 ▸ Cylindricity</ListBoxItem>
+            <ListBoxItem>94190 ▸ Ebenheit</ListBoxItem>
+            <ListBoxItem>93630 ▸ Loch Ø10</ListBoxItem>
+            <ListBoxItem>93103 ▸ Zylindrizität</ListBoxItem>
         </ListBox>
     </DockPanel>
 </UserControl>

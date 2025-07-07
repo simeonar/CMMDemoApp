@@ -8,19 +8,19 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <TabControl Margin="4" Height="200">
-            <TabItem Header="General">
+            <TabItem Header="Allgemein">
                 <StackPanel Margin="8">
                     <TextBlock Text="Name:" />
                     <TextBox Text="Feature A"/>
-                    <TextBlock Text="Type:" Margin="0,8,0,0"/>
+                    <TextBlock Text="Typ:" Margin="0,8,0,0"/>
                     <ComboBox>
-                        <ComboBoxItem Content="Plane"/>
-                        <ComboBoxItem Content="Cylinder"/>
+                        <ComboBoxItem Content="Ebene"/>
+                        <ComboBoxItem Content="Zylinder"/>
                     </ComboBox>
                 </StackPanel>
             </TabItem>
-            <TabItem Header="Advanced">
-                <TextBlock Text="Advanced settings..." Margin="8"/>
+            <TabItem Header="Erweitert">
+                <TextBlock Text="Erweiterte Einstellungen..." Margin="8"/>
             </TabItem>
         </TabControl>
     </Grid>

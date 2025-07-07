@@ -16,7 +16,7 @@ using System.Windows.Shapes;
 namespace CMMDemoApp.Views.Panels
 {
     /// <summary>
-    /// Interaktionslogik für PropertiesPanel.xaml
+    /// Interaction logic for PropertiesPanel.xaml
     /// </summary>
     public partial class PropertiesPanel : UserControl
     {

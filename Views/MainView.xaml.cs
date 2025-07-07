@@ -24,7 +24,7 @@ namespace CMMDemoApp.Views
         private string _currentPanelTag = null;
 
         /// <summary>
-        /// Вызывается при выборе вкладки в боковом ListBox
+        /// Wird aufgerufen, wenn ein Tab im seitlichen ListBox ausgewählt wird
         /// </summary>
         private void PanelSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -32,11 +32,11 @@ namespace CMMDemoApp.Views
             {
                 string tag = item.Tag?.ToString();
 
-                // Показать левую колонку, если она была скрыта
+                // Zeige die linke Spalte, wenn sie ausgeblendet war
                 if (LeftContentColumn.Width.Value == 0)
                     LeftContentColumn.Width = new GridLength(250);
 
-                // Подключить верхнее окно
+                // Oberes Fenster anschließen
                 switch (tag)
                 {
                     case "Features":
@@ -47,7 +47,7 @@ namespace CMMDemoApp.Views
                         LeftUpperPanel.Content = new InspectionPanel(); break;
                 }
 
-                // Нижняя панель — всегда Property View
+                // Unteres Panel – immer Property View
                 if (LeftLowerPanel.Content == null)
                 {
                     LeftLowerPanel.Content = new PropertiesPanel();
@@ -66,7 +66,7 @@ namespace CMMDemoApp.Views
                 var item = PanelSelector.SelectedItem as ListBoxItem;
                 if (item == null)
                 {
-                    // Активируем первую вкладку, если ничего не выбрано
+                    // Aktivieren Sie die erste Registerkarte, wenn nichts ausgewählt ist
                     PanelSelector.SelectedIndex = 0;
                 }
                 else
@@ -76,7 +76,7 @@ namespace CMMDemoApp.Views
             }
             else
             {
-                // Скрываем панель
+                // Verstecke das Panel
                 LeftContentColumn.Width = new GridLength(0);
                 //PanelContent.Content = null;
                 _currentPanelTag = null;
