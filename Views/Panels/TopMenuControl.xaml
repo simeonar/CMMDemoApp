@@ -147,14 +147,6 @@
                                     </StackPanel>
                                 </Grid>
                             </Button>
-                            <!--<Button Content="Design Modell"
-                                    Background="#E5EDF7"
-                                    BorderThickness="0"
-                                    Width="60"
-                                    FontWeight="Bold"
-                                    FontSize="10"
-                                    Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Height="67" Click="LoadDesignButton_Click"/>-->
-
                             <Separator
                                 Width="1"
                                 Margin="0,10"

@@ -25,7 +25,7 @@ namespace CMMDemoApp.Views.Panels
             {
                 _source = value;
 
-                // ⚠️ Загружать сцену можно только после инициализации
+                // ⚠️ Das Laden der Szene ist nur nach der Initialisierung möglich
                 if (_isInitialized)
                     LoadModel();
             }
@@ -44,14 +44,14 @@ namespace CMMDemoApp.Views.Panels
             {
                 await webView.EnsureCoreWebView2Async();
 
-                // Открываем DevTools (удалить при продакшне)
+                // DevTools öffnen (im Produktionsmodus entfernen)
                 webView.CoreWebView2.OpenDevToolsWindow();
 
-                // Виртуальный хост для index.html
+                // Virtueller Host für index.html
                 var editorPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Editor");
                 if (!Directory.Exists(editorPath))
                 {
-                    MessageBox.Show($"Папка '{editorPath}' не найдена.");
+                    MessageBox.Show($"Der Ordner '{editorPath}' wurde nicht gefunden.");
                     return;
                 }
 
@@ -60,11 +60,11 @@ namespace CMMDemoApp.Views.Panels
                     editorPath,
                     CoreWebView2HostResourceAccessKind.Allow);
 
-                // Виртуальный хост для моделей
+                // Virtueller Host für Modelle
                 var modelsPath = Path.Combine(editorPath, "models");
                 if (!Directory.Exists(modelsPath))
                 {
-                    MessageBox.Show($"Папка моделей '{modelsPath}' не найдена.");
+                    MessageBox.Show($"Der Modellordner '{modelsPath}' wurde nicht gefunden.");
                     return;
                 }
 
@@ -73,15 +73,15 @@ namespace CMMDemoApp.Views.Panels
                     modelsPath,
                     CoreWebView2HostResourceAccessKind.Allow);
 
-                // 💡 Отметим, что WebView инициализирован
+                // 💡 Markieren, dass WebView initialisiert wurde
                 _isInitialized = true;
 
-                // 🚀 Загружаем сцену после полной готовности
+                // 🚀 Szene nach vollständiger Bereitschaft laden
                 LoadModel();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка инициализации WebView2: {ex.Message}");
+                MessageBox.Show($"WebView2-Initialisierungsfehler: {ex.Message}");
             }
         }
 
