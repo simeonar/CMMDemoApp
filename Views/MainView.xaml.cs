@@ -1,5 +1,10 @@
-﻿using CMMDemoApp.ViewModels;
+﻿using CMMDemoApp.Services;
+using CMMDemoApp.ViewModels;
 using CMMDemoApp.Views.Panels;
+using iText.Layout.Element;
+using Microsoft.Win32;
+using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -13,13 +18,35 @@ namespace CMMDemoApp.Views
         public bool IsLeftPanelVisible { get; set; } = true;
         public bool IsRightPanelVisible { get; set; } = true;
         public bool Is3DViewVisible { get; set; } = true;
+        public bool IsWebViewVisible { get; set; } = true;
 
         public MainView()
         {
             InitializeComponent();
+            TabManager.CenterTabControl = CenterTabControl;
+            TabManager.SplashTab = SplashTab;
             PanelSelector.SelectedIndex = 0;
             this.DataContext = new MainViewModel();
+            TopMenu.DesignLoadRequested += OnDesignLoadRequested;
         }
+
+        private void OnDesignLoadRequested(object sender, EventArgs e)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Filter = "3D Models (*.glb;*.gltf)|*.glb;*.gltf",
+                Title = "Выберите 3D-модель"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                string selectedPath = dialog.FileName;
+
+                // Передаём путь в TabManager — он сам преобразует его в безопасный URL
+                TabManager.OpenModelTab(selectedPath);
+            }
+        }
+
 
         private string _currentPanelTag = null;
 
@@ -81,6 +108,12 @@ namespace CMMDemoApp.Views
                 //PanelContent.Content = null;
                 _currentPanelTag = null;
             }
+        }
+
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            
         }
     }
 }

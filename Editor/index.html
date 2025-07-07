@@ -15,7 +15,7 @@
 <body>
     <canvas id="renderCanvas"></canvas>
 
-    <!-- Babylon.js und glTF Loader -->
+    <!-- Babylon.js и glTF-загрузчик -->
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
     <script src="https://cdn.babylonjs.com/loaders/babylon.glTF2FileLoader.min.js"></script>
 
@@ -26,85 +26,84 @@
         const createScene = function () {
             const scene = new BABYLON.Scene(engine);
 
-            // Erstellen Sie eine Umgebung und eine Kamera im "Viewer"-Stil
+            // Окружение и камера
             const environment = scene.createDefaultEnvironment({
                 createSkybox: true,
-                createGround: false, // Deaktivieren Sie die Bodenebene
+                createGround: false,
                 skyboxSize: 1,
                 groundSize: 1
             });
 
-            // Entfernen Sie das Standardlicht, um eigenes hinzuzufügen
             if (scene.lights.length > 0) {
                 scene.lights[0].dispose();
             }
 
-            // Zwei gerichtete Lichtquellen hinzufügen
-            // Licht 1: unten-vorne-rechts
             const light1 = new BABYLON.DirectionalLight("dir01", new BABYLON.Vector3(-0.5, -1, -0.5), scene);
             light1.position = new BABYLON.Vector3(20, 40, 20);
             light1.intensity = 10;
 
-            // Licht 2: unten-vorne-links
             const light2 = new BABYLON.DirectionalLight("dir02", new BABYLON.Vector3(0.5, -1, -0.5), scene);
             light2.position = new BABYLON.Vector3(-20, 40, -20);
             light2.intensity = 10;
 
-
             scene.createDefaultCameraOrLight(true, true, true);
-
-            // Kamera für bessere Interaktion einstellen
             const camera = scene.activeCamera;
+
             if (camera instanceof BABYLON.ArcRotateCamera) {
-                camera.wheelPrecision = 50; // Stellt die Empfindlichkeit des Mausrads ein
-                camera.allowUpsideDown = false; // Verhindert, dass die Kamera auf den Kopf gestellt wird
+                camera.wheelPrecision = 50;
+                camera.allowUpsideDown = false;
             }
 
-            // Modell laden
+            // 🔄 Проверка параметра modelPath из URL
+            const params = new URLSearchParams(window.location.search);
+            const userModelPath = params.get("modelPath");
+
+            let rootUrl = "models/";
+            let fileName = "mitutoyo.gltf";
+
+            if (userModelPath) {
+                const lastSlash = userModelPath.lastIndexOf("/") + 1;
+                rootUrl = userModelPath.substring(0, lastSlash);
+                fileName = userModelPath.substring(lastSlash);
+            }
+
+
+            // Загрузка модели (заставки или переданной)
             BABYLON.SceneLoader.ImportMesh(
-                "", "models/", "mitutoyo.gltf", scene,
+                "", rootUrl, fileName, scene,
                 function (meshes) {
-                    // 1. Erstellen Sie einen Wurzelknoten für das gesamte Modell
                     const modelRoot = new BABYLON.TransformNode("modelRoot", scene);
                     meshes.forEach(mesh => {
                         if (mesh) mesh.parent = modelRoot;
                     });
 
-                    // 2. Anfangsausrichtung korrigieren
                     modelRoot.rotation.x = Math.PI;
-                    modelRoot.computeWorldMatrix(true); // Drehung anwenden
+                    modelRoot.computeWorldMatrix(true);
 
-                    // 3. Berechnen Sie das Zentrum und die Größe für das Framing
                     const bounds = modelRoot.getHierarchyBoundingVectors(true);
                     const center = bounds.min.add(bounds.max).scale(0.5);
                     const size = bounds.max.subtract(bounds.min).length();
 
-                    // 4. Pivot im Mittelpunkt des Modells erstellen
                     const pivot = new BABYLON.TransformNode("pivot", scene);
                     pivot.position = center;
                     modelRoot.parent = pivot;
                     modelRoot.position.subtractInPlace(center);
 
-                    // Anfangsdrehung einstellen, damit das Modell der Kamera "zugewandt" ist
-                    pivot.rotation.y = Math.PI / 2; // Drehung um 90 Grad
+                    pivot.rotation.y = Math.PI / 2;
 
-                    // 5. Kamera manuell einstellen
                     if (camera instanceof BABYLON.ArcRotateCamera) {
-                        // Ziel auf den Pivot setzen
                         camera.setTarget(pivot.position);
-
-                        // Abstand mit Reserve berechnen und einstellen
                         camera.radius = size * 2;
                     }
 
-                    // 6. Pivot-Rotationsanimation
+                    // Вращение модели
                     scene.onBeforeRenderObservable.add(() => {
-                        pivot.rotation.y -= 0.003; // Rotationsrichtung geändert
+                        pivot.rotation.y -= 0.003;
                     });
                 },
                 null,
                 function (scene, message) {
-                    console.error("Fehler beim Laden des Modells:", message);
+                    console.error("Ошибка при загрузке модели:", message);
                 }
             );
 
@@ -112,7 +111,6 @@
         };
 
         const scene = createScene();
-
         engine.runRenderLoop(() => scene.render());
         window.addEventListener("resize", () => engine.resize());
     </script>
