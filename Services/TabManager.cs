@@ -15,7 +15,7 @@ namespace CMMDemoApp.Services
         {
             if (CenterTabControl == null)
             {
-                MessageBox.Show("CenterTabControl не инициализирован. Назначьте его перед вызовом OpenModelTab.");
+                MessageBox.Show("CenterTabControl ist nicht initialisiert. Bitte setzen Sie ihn vor dem Aufruf von OpenModelTab.");
                 return;
             }
 

@@ -15,7 +15,7 @@
 <body>
     <canvas id="renderCanvas"></canvas>
 
-    <!-- Babylon.js и glTF-загрузчик -->
+    <!-- Babylon.js und glTF-Loader -->
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
     <script src="https://cdn.babylonjs.com/loaders/babylon.glTF2FileLoader.min.js"></script>
 
@@ -26,7 +26,7 @@
         const createScene = function () {
             const scene = new BABYLON.Scene(engine);
 
-            // Окружение и камера
+            // Umgebung und Licht
             const environment = scene.createDefaultEnvironment({
                 createSkybox: true,
                 createGround: false,
@@ -54,21 +54,22 @@
                 camera.allowUpsideDown = false;
             }
 
-            // 🔄 Проверка параметра modelPath из URL
+            // Modellpfad aus der URL abrufen
             const params = new URLSearchParams(window.location.search);
             const userModelPath = params.get("modelPath");
 
             let rootUrl = "models/";
             let fileName = "mitutoyo.gltf";
+            let isCustomModel = false;
 
             if (userModelPath) {
                 const lastSlash = userModelPath.lastIndexOf("/") + 1;
                 rootUrl = userModelPath.substring(0, lastSlash);
                 fileName = userModelPath.substring(lastSlash);
+                isCustomModel = true;
             }
 
-
-            // Загрузка модели (заставки или переданной)
+            // Modell laden
             BABYLON.SceneLoader.ImportMesh(
                 "", rootUrl, fileName, scene,
                 function (meshes) {
@@ -77,7 +78,9 @@
                         if (mesh) mesh.parent = modelRoot;
                     });
 
-                    modelRoot.rotation.x = Math.PI;
+                    if (!isCustomModel) {
+                        modelRoot.rotation.x = Math.PI;
+                    }
                     modelRoot.computeWorldMatrix(true);
 
                     const bounds = modelRoot.getHierarchyBoundingVectors(true);
@@ -88,15 +91,20 @@
                     pivot.position = center;
                     modelRoot.parent = pivot;
                     modelRoot.position.subtractInPlace(center);
-
                     pivot.rotation.y = Math.PI / 2;
 
                     if (camera instanceof BABYLON.ArcRotateCamera) {
                         camera.setTarget(pivot.position);
                         camera.radius = size * 2;
+
+                        if (isCustomModel) {
+                            // 🎯 Kamera von der Seite und von oben – nur für benutzerdefiniertes Modell
+                            camera.alpha = Math.PI / 2;
+                            camera.beta = Math.PI / 3;
+                        }
+                        // Splash: Standardwinkel beibehalten
                     }
 
-                    // Вращение модели
                     scene.onBeforeRenderObservable.add(() => {
                         pivot.rotation.y -= 0.003;
                     });
@@ -116,3 +124,4 @@
     </script>
 </body>
 </html>
+<!-- File: index.html -->

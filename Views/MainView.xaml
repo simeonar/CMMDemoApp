@@ -117,7 +117,7 @@
                 <Border Grid.Column="2">
                     <!--Visibility="{Binding IsWebViewVisible, Converter={StaticResource BooleanToVisibilityConverter}}"> -->
                     <TabControl x:Name="CenterTabControl" Grid.Column="2">
-                        <TabItem Header="3D Заставка" x:Name="SplashTab">
+                        <TabItem Header="3D Startbildschirm" x:Name="SplashTab">
                             <local:WebView />
                         </TabItem>
                     </TabControl>

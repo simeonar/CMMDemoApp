@@ -34,15 +34,15 @@ namespace CMMDemoApp.Views
         {
             var dialog = new OpenFileDialog
             {
-                Filter = "3D Models (*.glb;*.gltf)|*.glb;*.gltf",
-                Title = "Выберите 3D-модель"
+                Filter = "3D-Modelle (*.glb;*.gltf)|*.glb;*.gltf",
+                Title = "Wählen Sie ein 3D-Modell aus"
             };
 
             if (dialog.ShowDialog() == true)
             {
                 string selectedPath = dialog.FileName;
 
-                // Передаём путь в TabManager — он сам преобразует его в безопасный URL
+                // Pfad an TabManager übergeben – dieser wandelt ihn in eine sichere URL um
                 TabManager.OpenModelTab(selectedPath);
             }
         }
