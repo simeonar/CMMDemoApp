@@ -3,7 +3,7 @@
         xmlns:conv="clr-namespace:CMMDemoApp.Converters"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:CMMDemoApp.Views.Panels" 
-        Title="MainView" Height="800" Width="1200">
+        Title="Demo App " Height="800" Width="1200">
     <Window.Resources>
         <!--<conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>-->
         <DataTemplate x:Key="WebViewTemplate">
