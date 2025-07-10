@@ -3,6 +3,7 @@
         xmlns:conv="clr-namespace:CMMDemoApp.Converters"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:CMMDemoApp.Views.Panels" 
+        xmlns:state="clr-namespace:CMMDemoApp.Services"
         Title="Demo App " Height="800" Width="1200">
     <Window.Resources>
         <!--<conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>-->
@@ -25,6 +26,7 @@
 
         <!-- 3. Schaltfläche über allem -->
         <Button Content="▼"
+                Name="MenuToggleButton"
                 Width="42"
                 Height="24"
                 Margin="0,-2,0,0"
@@ -35,7 +37,8 @@
                 Foreground="White"
                 FontWeight="Bold"
                 BorderThickness="0"
-                ContextMenuService.IsEnabled="True">
+                ContextMenuService.IsEnabled="True"
+                Click="MenuToggleButton_Click">
             <Button.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Not implemented" />

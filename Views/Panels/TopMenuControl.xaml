@@ -4,9 +4,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:CMMDemoApp.Views.Panels"
+    xmlns:conv="clr-namespace:CMMDemoApp.Converters"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
     <UserControl.Resources>
+        <conv:FirstLineConverter x:Key="FirstLineConverter" />
+        <conv:SecondLineConverter x:Key="SecondLineConverter" />
+        <conv:FooterLineConverter x:Key="FooterLineConverter" />
         <Style
             x:Key="TopMenuButtonStyle"
             BasedOn="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
@@ -31,23 +35,30 @@
                                     Height="24"
                                     Margin="0,0,0,4"
                                     Source="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" />
-                                <TextBlock
-                                    HorizontalAlignment="Center"
-                                    TextAlignment="Center"
-                                    TextWrapping="Wrap">
-                                    <Run Text="{Binding Content, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource FirstLineConverter}}" />
-                                    <LineBreak />
-                                    <Run Text="{Binding Content, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource SecondLineConverter}}" />
-                                    <LineBreak />
-                                    <Run
-                                        FontSize="10"
-                                        Foreground="LightGray"
-                                        Text="―" />
-                                    <LineBreak />
-                                    <Run Foreground="Gray" Text="{Binding Content, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource FooterLineConverter}}" />
-                                </TextBlock>
+                                <StackPanel
+                                        x:Name="TextPanel"
+                                        HorizontalAlignment="Center">
+                                    <TextBlock TextAlignment="Center"
+                                               TextWrapping="Wrap">
+
+                                         <Run Text="{Binding Content, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource FirstLineConverter}}" />
+                                         <LineBreak />
+                                         <Run Text="{Binding Content, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource SecondLineConverter}}" />
+                                         <LineBreak />
+                                         <Run FontSize="10" Foreground="LightGray" Text="―" />
+                                         <LineBreak />
+                                         <Run Foreground="Gray" Text="{Binding Content, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource FooterLineConverter}}" />
+                                    </TextBlock>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsMenuCollapsed, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                         Value="True">
+                                <Setter TargetName="TextPanel" Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -88,7 +99,7 @@
                                             Width="20"
                                             Height="20"
                                             Margin="0,0,0,5"
-                                            Source="Resources/import_icon.png" />
+                                            Source="/Views/Panels/Resources/accessories-dictionary.png" />
                                         <TextBlock
                                             HorizontalAlignment="Center"
                                             TextAlignment="Center"
@@ -166,7 +177,7 @@
                                             Width="20"
                                             Height="20"
                                             Margin="0,0,0,5"
-                                            Source="Resources/import_icon.png" />
+                                            Source="/Views/Panels/Resources/bittorrent.png" />
                                         <TextBlock
                                             HorizontalAlignment="Center"
                                             TextAlignment="Center"
@@ -205,7 +216,7 @@
                                             Width="20"
                                             Height="20"
                                             Margin="0,0,0,5"
-                                            Source="Resources/import_icon.png" />
+                                            Source="/Views/Panels/Resources/amsn.png" />
                                         <TextBlock
                                             HorizontalAlignment="Center"
                                             TextAlignment="Center"

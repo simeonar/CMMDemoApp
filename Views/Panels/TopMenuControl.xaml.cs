@@ -30,6 +30,16 @@ namespace CMMDemoApp.Views.Panels
             InitializeComponent();
         }
 
+        public static readonly DependencyProperty IsMenuCollapsedProperty =
+    DependencyProperty.Register("IsMenuCollapsed", typeof(bool), typeof(TopMenuControl),
+        new PropertyMetadata(false));
+
+        public bool IsMenuCollapsed
+        {
+            get => (bool)GetValue(IsMenuCollapsedProperty);
+            set => SetValue(IsMenuCollapsedProperty, value);
+        }
+
         private void LoadDesignButton_Click(object sender, RoutedEventArgs e)
         {
             DesignLoadRequested?.Invoke(this, EventArgs.Empty);

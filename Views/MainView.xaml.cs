@@ -110,10 +110,10 @@ namespace CMMDemoApp.Views
             }
         }
 
-
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void MenuToggleButton_Click(object sender, RoutedEventArgs e)
         {
-            
+            MenuStateManager.IsMenuCollapsed = !MenuStateManager.IsMenuCollapsed;
+            MenuToggleButton.Content = MenuStateManager.IsMenuCollapsed ? "▲" : "▼";
         }
     }
 }
